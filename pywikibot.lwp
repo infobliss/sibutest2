@@ -1,0 +1,8 @@
+#LWP-Cookies-2.0
+Set-Cookie3: centralauth_Token=542c836b04a807068d3240a755d767b0; path="/"; domain=".commons.wikimedia.org"; path_spec; secure; expires="2018-03-31 20:14:28Z"; httponly=None; version=0
+Set-Cookie3: centralauth_User=Infobliss; path="/"; domain=".commons.wikimedia.org"; path_spec; secure; expires="2018-03-31 20:14:28Z"; httponly=None; version=0
+Set-Cookie3: forceHTTPS=true; path="/"; domain=".commons.wikimedia.org"; path_spec; expires="2017-04-30 20:14:28Z"; httponly=None; version=0
+Set-Cookie3: WMF-Last-Access-Global="31-Mar-2017"; path="/"; domain=".wikimedia.org"; path_spec; domain_dot; secure; expires="2017-05-02 12:00:00Z"; HttpOnly=None; version=0
+Set-Cookie3: WMF-Last-Access="31-Mar-2017"; path="/"; domain="commons.wikimedia.org"; path_spec; secure; expires="2017-05-02 12:00:00Z"; HttpOnly=None; version=0
+Set-Cookie3: commonswikiUserID=6391435; path="/"; domain="commons.wikimedia.org"; path_spec; secure; expires="2018-03-31 20:14:28Z"; httponly=None; version=0
+Set-Cookie3: commonswikiUserName=Infobliss; path="/"; domain="commons.wikimedia.org"; path_spec; secure; expires="2018-03-31 20:14:28Z"; httponly=None; version=0
