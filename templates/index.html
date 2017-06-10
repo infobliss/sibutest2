@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Sibu Index{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+{% block content %}      
+    <style>
+       #customtext {
+            background: #ecf2f5;
+            width: 100%;
+            font-family: 'coming-soon';
+            font-size: 21px;
+            padding-left: 25px;
+            margin-top: 20px;
+            border-top: 1px solid #ccc;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;
+        }
+    </style>
+   {% if username %}
+     <div id=customtext>
+        <p>Hello {{ username }}!</p>
+        <p><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span>Logout</a></p>
+     </div>
+        {% else %}
+      <!--  <label>Sibutest welcomes you. Please login to continue.</label>  -->
+      <!--  <p><a href="{{ url_for('login') }}">login</a></p>  -->
+        <form method="get" action="{{ url_for('login') }}">
+           <center>
+              <input class="btn btn-primary btn-md" value="Login to Wikimedia Commons" type="submit">
+           </center>
+        {% endif %}
+{% endblock %}
+
