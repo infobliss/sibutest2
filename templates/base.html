@@ -2,22 +2,20 @@
 <html lang="en">
 <head>
   <meta http-equiv="content-type" content="text/html; charset=UTF-8">
-	<meta charset="UTF-8">
-	<title>{% if subtitle %}{% if subtitle != '' %}{{subtitle}} | {% endif %}{% endif %} glam2commons
-	</title>
-        <meta name="description" content="Web tool to upload images directly from glams to Wikimwdia Commons." />
+    <meta charset="UTF-8">
+    <title>{% if subtitle %}{% if subtitle != '' %}{{subtitle}} | {% endif %}{% endif %} glam2commons
+    </title>
+    <meta name="description" content="Web tool to upload images directly from glams to Wikimwdia Commons." />
 
 	<!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="//tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css" rel="stylesheet">
+    <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    
+    <style type="text/css">
 
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-	<style type="text/css">
     html, body { background-color: #eee; }
     .green {
     color: green;
@@ -51,13 +49,19 @@
     box-shadow: 0 1px 2px rgba(0,0,0,.15);
     }
     .page-header {
+    color: #286090;
     background-color: #f5f5f5;
     padding: 5px 20px 10px;
     margin: -20px -20px 20px;
     }
+    .border {
+    border-bottom-style: solid;
+    border-bottom-color: #732ce9;
+    border-bottom-width: 1px;
+    }
     @font-face { font-family: coming-soon; }
     div { font-family: 'coming-soon'; }
-	</style>
+    </style>
 </head>
 <body>
   <div class="container">
@@ -65,7 +69,7 @@
       <div class="page-header">
         <h1><img src="{{url_for('static', filename='g2c.png')}}" title="g2c" width="120"/>&nbsp Upload Images from GLAM to Commons</h1>
       </div>
-      <ul class="nav nav-pills nav-justified">
+      <ul class="nav nav-pills nav-justified border">
         <li><a href="{{ url_for('index') }}">Home</a></li>
         <li><a>About</a></li>
 	<li><a>Batch-Upload</a></li>
