@@ -8,19 +8,22 @@
        #customtext {
             background: #ecf2f5;
             width: 100%;
-            font-family: 'coming-soon';
-            font-size: 21px;
+            font-family: "Lato", sans-serif;
+            font-size: 20px;
+            color: #286090;
             padding-left: 25px;
             margin-top: 20px;
-            border-top: 1px solid #ccc;
+            border-top: 2px solid #ccc;
             border-bottom-right-radius: 3px;
             border-bottom-left-radius: 3px;
         }
+       .rightside { float:right }
+
     </style>
    {% if username %}
      <div id=customtext>
-        <p>Hello {{ username }}!</p>
-        <p><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span>Logout</a></p>
+        <span>Hello {{ username }}!</span>
+        <p class="rightside glyphicon glyphicon-log-out"><a href="{{ url_for('logout') }}">Logout</a></p>
      </div>
         {% else %}
       <!--  <label>Sibutest welcomes you. Please login to continue.</label>  -->
