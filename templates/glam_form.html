@@ -18,13 +18,12 @@
             background: #f0f0f0;
         }
         #container {
-            position: fixed;
-            width: 440px;
-            height: 500px;
-            top: 50%;
-            left: 50%;
-            margin-top: -40px;
-            margin-left: -170px;
+            position: relative;
+            width: 70%;
+            top: 30%;
+            left: 15%;
+            /*margin-top: -40px;
+            margin-left: -170px;*/
             background: #fff;
             border-radius: 3px;
             border: 1px solid #ccc;
@@ -36,7 +35,7 @@
             margin-top: 20px;
         }
         label {
-            color: #555;
+            color: #286090;
             display: inline-block;
             margin-left: 18px;
             padding-top: 10px;
@@ -55,7 +54,7 @@
             margin: 10px;
             margin-top: 12px;
             margin-left: 18px;
-            width: 400px;
+            width: 600px;
             height: 35px;
             border: 1px solid #c7d0d2;
             border-radius: 2px;
@@ -88,11 +87,11 @@
         }
 
         #lower {
-            background: #ecf2f5;
+            background: #b8aefb;
             width: 100%;
             height: 69px;
             margin-top: 20px;
-              box-shadow: inset 0 1px 1px #fff;
+            box-shadow: inset 0 1px 1px #fff;
             border-top: 1px solid #ccc;
             border-bottom-right-radius: 3px;
             border-bottom-left-radius: 3px;
@@ -107,7 +106,7 @@
             font-size: 14px;
             font-weight: bold;
             color: #fff;
-            background-color: #acd6ef; /*IE fallback*/
+            background-color: #286090; /*IE fallback*/
             background-image: -webkit-gradient(linear, left top, left bottom, from(#acd6ef), to(#6ec2e8));
             background-image: -moz-linear-gradient(top left 90deg, #acd6ef 0%, #6ec2e8 100%);
             background-image: linear-gradient(top left 90deg, #acd6ef 0%, #6ec2e8 100%);
@@ -130,25 +129,38 @@
 
        {% if username %}
        <div id=customtext>
-         <p>Hello {{ username }}!</p>
-         <p><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span>Logout</a></p>
+            <p>Hello {{ username }}!</p>
+            <p><a href="{{ url_for('logout') }}"><span class="glyphicon glyphicon-log-out"></span>Logout</a></p>
        </div>
        {% endif %}
     
        <!-- Begin Page Content -->
-            <div id="container">
-                <form action = "{{ url_for('receiveData') }}" method="post">
+        <div id="container">
+            <form action = "{{ url_for('receiveData') }}" method="post">
                
-                    <label>Enter details: </label>
+                 <label>Enter details: </label>
                
-                    <p><input type="text" name='glam_name' required value="Nationaal Archief" readonly nBlur="if(this.value=='')this.value='Click'" onFocus="if(this.value=='')this.value='Nationaal Archief' "/></p>
-                    <p><input type="text" name='uuid' required  placeholder="Unique ID of image"></p>
-                    <p><input type="text" name='categories' placeholder="Image Category"></p>
-                    
-                    <div id="lower">
-                        <input type="submit" value="Upload to Commons"/>
-                    </div><!--/ lower-->
-                </form>
-            </div><!--/ container-->
-            <!-- End Page Content -->
+                 <p><input type="text" name='glam_name' required value="Nationaal Archief" readonly nBlur="if(this.value=='')this.value='Click'" onFocus="if(this.value=='')this.value='Nationaal Archief' "/></p>
+                 <p><input type="text" name='uuid' required  placeholder="Unique ID of image"></p>
+                 <p><input type="text" name='categories' placeholder="Image Category"></p>
+	         <label>More category?&nbsp;
+                   <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
+                      <span id="response"</span>
+                 </label>
+                 <script>
+                     var count =2;
+                     var boxName = 0;
+                     function addInput()
+                     {
+                         var boxName="category"+count; 
+                         document.getElementById('response').innerHTML+='<p><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p>';
+                         count += 1;
+                     }
+                 </script>            
+            <div id="lower">
+                 <input type="submit" value="Upload to Commons"/>
+            </div><!--/ lower-->
+            </form>
+        </div><!--/ container-->
+        <!-- End Page Content -->
 {% endblock %}
