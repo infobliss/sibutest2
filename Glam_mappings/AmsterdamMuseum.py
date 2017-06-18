@@ -10,6 +10,7 @@ def load_from_url(url):
     '''
     function which loads and parses the json from the database url
     '''
+    #TODO: Make this code work in both python2 and 3, now it works locally in 3 and the py2 code is in nationaalarchief
     jstring=urllib2.urlopen(url).read().decode('utf-8')
     parsed_json = json.loads(jstring)
     return parsed_json
@@ -30,9 +31,22 @@ def priref_to_url(priref):
     #TODO: better handling of no results
     return 'No url found'
 
+
+def json_to_wikitemplate(data):
+    parameters=art_photo_parameters
+
+
+
 def main(priref, categories=[]):
     database_url = priref_to_url(priref)
     data = load_from_url(database_url)
-    print(data['adlibJSON']['recordList']['record'])
+    if 'recordList' in data['adlibJSON']:
+        if 'record' in data['adlibJSON']['recordList']:
+            json_to_wikitemplate(data['adlibJSON']['recordList']['record'])
+            print('object found')
+        else:
+            print('no object found (record)')
+    else:
+        print('no object found (recordlist)')
 
 main('http://hdl.handle.net/11259/collection.23524', 'Foto')
