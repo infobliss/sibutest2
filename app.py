@@ -43,10 +43,17 @@ def login():
 
 @app.route('/result', methods=['POST'])
 def receiveData():
+   # if request.method == 'POST':
     username = flask.session.get('username', None) 
     glam1 = flask.request.form['glam_name']
     id = flask.request.form['uuid']
-    categories = flask.request.form['categories']
+    category1 = flask.request.form['categories']
+    categories = [category1]
+    f = flask.request.form
+    for key in f.keys():
+        if 'category' in key:
+            categories.append(flask.request.form[key]) 
+            print("Multiple categories exist. Appended.")  
     glam_list = listOfGlams
     
     try:
@@ -61,16 +68,19 @@ def receiveData():
     value = main(id, categories, username, flask.session['access_token_key'], flask.session['access_token_secret'])
     print('passes main')
     if value == 0:
-        return 'Main ended!'
+        return flask.render_template('results.html', glam_name=glam1, uuid=id)
     else:
-        returnString = 'operation successful'
-    return returnString
+        #returnString = 'Image: ' + id + ' not found.'
+        return flask.render_template('error.html', imageId=id)
+    #return returnString
+# show the glam form
+#return flask.render_template('glam_form.html', username=username)
 
 
 @app.route('/oauth-callback')
 def oauth_callback():
     """OAuth handshake callback."""
-    username = flask.session.get('username', None) 
+     
     if 'request_token' not in flask.session:
         flask.flash(u'OAuth callback failed. Are cookies disabled?')
         return flask.redirect(flask.url_for('index'))
@@ -93,8 +103,9 @@ def oauth_callback():
         flask.session['access_token'] = dict(zip(
             access_token._fields, access_token))
         flask.session['username'] = identity['username']
-
-    return flask.render_template('glam_form.html', username=username) 
+        username = flask.session.get('username', None)
+    
+    return flask.render_template('index.html', username=username) 
     #return flask.redirect(flask.url_for('index'))
 
 

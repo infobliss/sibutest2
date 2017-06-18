@@ -5,6 +5,77 @@
 {% endblock %}
 {% block content %}      
     <style>
+        /* Basics */
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: "Helvetica Neue", Helvetica, sans-serif;
+            color: #444;
+            -webkit-font-smoothing: antialiased;
+            background: #f0f0f0;
+        }
+        #container {
+            position: relative;
+            width: 70%;
+            top: 30%;
+            left: 15%;
+            /*margin-top: -40px;
+            margin-left: -170px;*/
+            background: #fff;
+            border-radius: 3px;
+            border: 1px solid #ccc;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+        }
+        #result {
+           font-family: "Lato", sans-serif;
+           color:#286090;
+           text-align: center; 
+           margin-bottom: 2px;
+        }
+        form {
+            margin: 0 auto;
+            margin-top: 20px;
+        }
+        label {
+            color: #286090;
+            display: inline-block;
+            margin-left: 18px;
+            padding-top: 10px;
+            font-size: 16px;
+        }
+      
+        input {
+            font-family: "Helvetica Neue", Helvetica, sans-serif;
+            font-size: 12px;
+            outline: none;
+        }
+        input[type=text],
+        input[type=password] ,input[type=time]{
+            color: #777;
+            padding-left: 10px;
+            margin: 10px;
+            margin-top: 12px;
+            margin-left: 18px;
+            width: 600px;
+            height: 35px;
+            border: 1px solid #c7d0d2;
+            border-radius: 2px;
+            box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #f5f7f8;
+            -webkit-transition: all .4s ease;
+            -moz-transition: all .4s ease;
+            transition: all .4s ease;
+            }
+        input[type=text]:hover,
+        input[type=password]:hover,input[type=time]:hover {
+            border: 1px solid #b6bfc0;
+            box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .7), 0 0 0 5px #f5f7f8;
+        }
+        input[type=text],
+        input[type=password]:focus,input[type=time]:focus {
+            border: 1px solid #a8c9e4;
+            box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #e6f2f9;
+        }
+
        #customtext {
             background: #ecf2f5;
             width: 100%;
@@ -16,22 +87,120 @@
             border-top: 2px solid #ccc;
             border-bottom-right-radius: 3px;
             border-bottom-left-radius: 3px;
-        }
+       }
        .rightside { float:right }
 
+       #lower {
+            background: #ecf2f5;
+            width: 100%;
+            height: 60px;
+            display: flex;  
+            align-items: center;
+            justify-content: center;
+            }
+           /* margin-top: 20px;
+            box-shadow: inset 0 1px 1px #fff;
+            border-top: 1px solid #ccc;
+            border-bottom-right-radius: 3px;
+            border-bottom-left-radius: 3px;*/
+       
+        
+        #dropdown{
+            padding-left: 10px;
+            margin-left: 18px;
+            width:550px;   
+            text-align-last:center;
+        }
+       /* input[type=submit] {
+            /*float: right;
+            margin: 0 auto;
+            margin-right: 20px;
+            margin-top: 20px;
+            width: 230px;
+            height: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+            background-color: #286090; /*IE fallback
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#acd6ef), to(#6ec2e8));
+            background-image: -moz-linear-gradient(top left 90deg, #acd6ef 0%, #6ec2e8 100%);
+            background-image: linear-gradient(top left 90deg, #acd6ef 0%, #6ec2e8 100%);
+            border-radius: 30px;
+            border: 1px solid #66add6;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 255, 255, .5);
+            cursor: pointer;
+        }
+        input[type=submit]:hover {
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#b6e2ff), to(#6ec2e8));
+            background-image: -moz-linear-gradient(top left 90deg, #b6e2ff 0%, #6ec2e8 100%);
+            background-image: linear-gradient(top left 90deg, #b6e2ff 0%, #6ec2e8 100%);
+        }
+        input[type=submit]:active {
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#6ec2e8), to(#b6e2ff));
+            background-image: -moz-linear-gradient(top left 90deg, #6ec2e8 0%, #b6e2ff 100%);
+            background-image: linear-gradient(top left 90deg, #6ec2e8 0%, #b6e2ff 100%);
+        }*/
     </style>
-   {% if username %}
+    {% if username %}
      <div id=customtext>
         <span>Hello {{ username }}!</span>
         <p class="rightside glyphicon glyphicon-log-out"><a href="{{ url_for('logout') }}">Logout</a></p>
      </div>
-        {% else %}
+       
+     <!-- Begin Page Content -->
+     <div id="container">
+         <form action = "{{ url_for('receiveData') }}" method="post">
+               
+              <label>Enter details: </label>
+               
+              <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
+                   <option value="" selected="selected" disabled>-- Choose GLAM --</option> 
+                   <option value="The Nationaal Archief or NA is the national archive of the Netherlands, located in The Hague.">Nationaal Archief</option>
+                   <option value="The British Museum is dedicated to human history, art and culture, and is located in the Bloomsbury area of London.">British Museum</option>
+                 </select>
+              </p>
+              <div id="result"></div> 
+              <p><input type="text" name='uuid' required  placeholder="Unique ID of image"></p>
+              <p><input type="text" name='categories' placeholder="Image Category"></p>
+              <label>More category?&nbsp;
+              <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
+                   <span id="response"</span>
+              </label>
+              <script type="text/javascript">
+                  function dropdownTip(value){
+                  document.getElementById("result").innerHTML = '<p>'+value+'</p>';
+                  }
+              </script>
+              <script>
+                     var count =2;
+                     var boxName = 0;
+                     function addInput()
+                     {
+                         var boxName="category"+count; 
+                         document.getElementById('response').innerHTML+='<p><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p>';
+                         count += 1;
+                     }
+              </script>            
+            <div id="lower">
+               <center>
+                 <input class="btn btn-primary btn-md" type="submit" value="Upload to Commons"/>
+               </center>
+            </div><!--/ lower-->
+            </form>
+        </div><!--/ container-->
+    <!-- End Page Content -->
+
+
+      {% else %}
       <!--  <label>Sibutest welcomes you. Please login to continue.</label>  -->
       <!--  <p><a href="{{ url_for('login') }}">login</a></p>  -->
+      <div> 
         <form method="get" action="{{ url_for('login') }}">
-           <center>
-              <input class="btn btn-primary btn-md" value="Login to Wikimedia Commons" type="submit">
-           </center>
-        {% endif %}
+          <center>
+           <input class="btn btn-primary btn-md" value="Login to Wikimedia Commons" type="submit">
+          </center>
+        </form>
+      </div>
+      {% endif %}
 {% endblock %}
 

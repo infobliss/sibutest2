@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Sibu Success page{% endblock %}
+{% block title %}Sibu Error page{% endblock %}
 {% block head %}
   {{ super() }}
 {% endblock %}
@@ -23,8 +23,7 @@
 
     <div id=customtext>
         <center>
-            <p>The image with id "{{ uuid }}" from {{glam_name}} is now available in Wikimedia Commons!</p>
+            <p>The image with given id "{{ imageId }}" was not found!</p>
         </center>
     </div>
 {% endblock %}
-
