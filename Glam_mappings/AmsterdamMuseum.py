@@ -5,6 +5,8 @@ try:
 except ImportError:
     import urllib2
 
+import libraries.infobox_templates as wikitemplates
+
 
 def load_from_url(url):
     '''
@@ -32,8 +34,31 @@ def priref_to_url(priref):
     return 'No url found'
 
 
+def parse_acquisition(date, method):
+    '''
+    function to parse the different types of acquisition into a provenanceevent template
+    '''
+    types = {'schenking': 'gift', 'overdracht': 'acquisition', 'legaat': 'inheritance', 'aankoop': 'purchase'
+        , 'bruikleen': 'loan'}
+    acquisition_type = 'in collection' #default if not known
+    if date == '0000' and method == 'onbekend':
+        return ''
+    if date == '0000':
+        date = '{{unknown}}'
+    if method in types:
+        acquisition_type = types[method]
+    return '{{{{ProvenanceEvent|time={date}|type={type}|newowner=Amsterdam Museum|oldowner=}}}}'\
+        .format(date=date, type=acquisition_type)
+
+
 def json_to_wikitemplate(data):
-    parameters=art_photo_parameters
+    parameters=wikitemplates.get_art_photo_parameters()
+    print(data)
+    if 'acquisition.date' in data:
+        parameters['object_history'] = parse_acquisition(data['acquisition.date'][0], data['acquisition.method'][0])
+    if 'credit_line' in data:
+        parameters['credit_line'] = '{{nl|' + data['credit_line'][0] + '}}'
+
 
 
 
@@ -42,11 +67,14 @@ def main(priref, categories=[]):
     data = load_from_url(database_url)
     if 'recordList' in data['adlibJSON']:
         if 'record' in data['adlibJSON']['recordList']:
-            json_to_wikitemplate(data['adlibJSON']['recordList']['record'])
-            print('object found')
+            if 'copyright' in data['adlibJSON']['recordList']['record'][0]:
+                json_to_wikitemplate(data['adlibJSON']['recordList']['record'][0])
+                print('object found')
+            else:
+                print('no copyright information')
         else:
             print('no object found (record)')
     else:
         print('no object found (recordlist)')
 
-main('http://hdl.handle.net/11259/collection.23524', 'Foto')
+main('http://hdl.handle.net/11259/collection.1524', 'Foto')
