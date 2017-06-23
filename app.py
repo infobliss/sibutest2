@@ -65,10 +65,10 @@ def receiveData():
 
     auth = OAuth1(client_key=consumer_token.key, client_secret=consumer_token.secret, resource_owner_key=flask.session['access_token_key'], resource_owner_secret=flask.session['access_token_secret'])
     #upload the image
-    value = main(id, categories, username, flask.session['access_token_key'], flask.session['access_token_secret'])
+    value, filename = main(id, categories, username, flask.session['access_token_key'], flask.session['access_token_secret'])
     print('passes main')
     if value == 0:
-        return flask.render_template('results.html', glam_name=glam1, uuid=id)
+        return flask.render_template('results.html', glam_name=glam1, uuid=id, filename=filename)
     else:
         #returnString = 'Image: ' + id + ' not found.'
         return flask.render_template('error.html', imageId=id)
@@ -108,6 +108,15 @@ def oauth_callback():
     return flask.render_template('index.html', username=username) 
     #return flask.redirect(flask.url_for('index'))
 
+@app.route('/help_page')
+def help_page():
+    """Show the user a help page."""
+    return flask.render_template('help.html')
+
+@app.route('/tempo')
+def under_construction():
+    """Show the user a help page."""
+    return flask.render_template('todo.html')
 
 @app.route('/logout')
 def logout():

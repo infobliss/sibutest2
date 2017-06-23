@@ -155,17 +155,17 @@
                
               <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
                    <option value="" selected="selected" disabled>-- Choose GLAM --</option> 
-                   <option value="The Nationaal Archief or NA is the national archive of the Netherlands, located in The Hague.">Nationaal Archief</option>
-                   <option value="The British Museum is dedicated to human history, art and culture, and is located in the Bloomsbury area of London.">British Museum</option>
+                   <option value="The Nationaal Archief or NA : the national archive of the Netherlands, located in The Hague">Nationaal Archief</option>
+                   <option value="The British Museum : dedicated to human history, art and culture, and is located in the Bloomsbury area of London.">British Museum</option>
                  </select>
               </p>
               <div id="result"></div> 
-              <p><input type="text" name='uuid' required  placeholder="Unique ID of image"></p>
-              <p><input type="text" name='categories' placeholder="Image Category"></p>
-              <label>More category?&nbsp;
+              <p><input type="text" name='uuid' required  placeholder="Unique ID of image (Click on Help button if in doubt)"></p>
+              <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
+              <p>&nbsp;&nbsp;More category?&nbsp;
               <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
                    <span id="response"</span>
-              </label>
+              </p>
               <script type="text/javascript">
                   function dropdownTip(value){
                   document.getElementById("result").innerHTML = '<p>'+value+'</p>';
