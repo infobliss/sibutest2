@@ -6,11 +6,9 @@ class GenericGLAM:
         self.template = template
 
     def fill_template(parameters, right_template):
-        '''fill the template based on the values provided by the derived
-        GLAM class'''
+        '''fill the template based on the values provided by the derived GLAM class'''
         if right_template == 1:
-            '''for right_template = 1; Assume that template is photograph
-            template'''
+            #for right_template = 1; Assume that template is photograph template
             wikitext = photograph_template.format(**parameters)
-            '''To be displayed to the user for editing'''
-            print(wikitext)
+            #To be displayed to the user for editing
+            return wikitext

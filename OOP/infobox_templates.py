@@ -106,11 +106,3 @@ photograph_template = '''
 
 }}
 '''
-
-
-def get_art_photo_parameters():
-    return art_photo_parameters
-
-
-def fill_art_photo_template(parameters):
-    return art_photo_template.format(**parameters)
