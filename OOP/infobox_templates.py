@@ -51,27 +51,27 @@ art_photo_template = '''
 '''
 
 photograph_parameters = {'photographer': '',
-                        'title': '',
-                        'description': '',
-                        'depicted people':'',
-                        'depicted place':'',
-                        'date': '',
-                        'medium': '',
-                        'dimensions': '',
-                        'institution': '',
-                        'department': '',
-                        'references': '',
-                        'object_history': '',
-                        'exhibition_history': '',
-                        'credit_line': '',
-                        'inscriptions': '',
-                        'notes': '',
-                        'accession_number': '',
-                        'source': '',
-                        'permission': '',
-                        'other_versions': '',
-                        'wikidata': '',
-                        'camera coord': '', }
+                         'title': '',
+                         'description': '',
+                         'depicted people': '',
+                         'depicted place': '',
+                         'date': '',
+                         'medium': '',
+                         'dimensions': '',
+                         'institution': '',
+                         'department': '',
+                         'references': '',
+                         'object_history': '',
+                         'exhibition_history': '',
+                         'credit_line': '',
+                         'inscriptions': '',
+                         'notes': '',
+                         'accession_number': '',
+                         'source': '',
+                         'permission': '',
+                         'other_versions': '',
+                         'wikidata': '',
+                         'camera coord': '', }
 
 photograph_template = '''
 {{Photograph
@@ -100,6 +100,7 @@ photograph_template = '''
 
 == {{int:license-header}} ==
 {{{glam_name}}}
+{{{license}}}
 
 {category_text}
 
@@ -113,4 +114,3 @@ def get_art_photo_parameters():
 
 def fill_art_photo_template(parameters):
     return art_photo_template.format(**parameters)
-
