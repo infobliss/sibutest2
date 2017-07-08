@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from libraries import *
 from GenericGLAM import GenericGLAM
 import json
 try:
@@ -73,9 +72,9 @@ def photographers_dict(photographerName):
         'Poll, Willem van de': 'Willem van de Poll'
     }
 
-    if photographerName in photographersAnefo.keys():
+    if photographerName in photographersAnefo:
         return True, photographersAnefo[photographerName], True
-    elif photographerName in photographersNotAnefo.keys():
+    elif photographerName in photographersNotAnefo:
         return True, photographersNotAnefo[photographerName], False
     else:
         return False, None, False
@@ -87,20 +86,20 @@ class NationaalArchief(GenericGLAM):
 
     def choose_correct_template(url):
         parsed_j = json.loads(urllib2.urlopen(url).read())
-        
+
         '''TODO: do some processing to choose the right template,
                return 1 if unable to decide'''
-        return 1, parsed_j
+        return 'Photograph', parsed_j
 
     def fill_template(self, url, category):
         categories = [category]
         try:
             right_template, parsed_j = self.choose_correct_template(url)
-        except:
-            print("Incorrect URL given")
-        
-        #perform the glam specific metadata mapping here
-        #and form the dictionary
+        except Exception:
+            print('Incorrect URL given')
+
+        # perform the glam specific metadata mapping here
+        # and form the dictionary
         diction = {
             'depicted_people': '',
             'depicted_place': '',
@@ -116,9 +115,9 @@ class NationaalArchief(GenericGLAM):
             'camera_coord': ''
         }
 
-        creator = parsed_j["doc"]["Vervaardiger"][0]
+        creator = parsed_j['doc']['Vervaardiger'][0]
 
-        if creator == '[onbekend]' or creator == 'Onbekend' or creator == 'Fotograaf Onbekend':
+        if creator in ['[onbekend]', 'Onbekend', 'Fotograaf Onbekend']:
             photographer = '{{unknown}}'
             hasPhotographerInDict = False
         elif creator == 'Fotograaf Onbekend / Anefo':
@@ -137,28 +136,23 @@ class NationaalArchief(GenericGLAM):
             else:
                 photographer = str(creator)
             if isAnefo:
-                photographer = ' (Anefo)'
+                photographer += ' (Anefo)'
         diction['photographer'] = photographer
-        title = parsed_j["doc"]["Titel"]
-        '''check if the title is empty'''
-        diction['title'] = parsed_j["doc"]["Titel"] or 'zonder titel'
-        #ToDo: Add the language tag by guessing the language
-        #of the title and description
-        description = parsed_j["doc"]["Inhoud"]
-        if not description:
-            diction['description'] = title
-        else:
-            diction['description'] = description
-        diction['date'] = parsed_j["doc"]["Inhoudsdatering"]
-        diction['medium'] = parsed_j["doc"]["Materiaalsoort"][0]
+        # check if the title is empty
+        diction['title'] = parsed_j['doc']['Titel'] or 'zonder titel'
+        # TODO: Add the language tag by guessing the language
+        # of the title and description
+        diction['description'] = parsed_j['doc']['Inhoud'] or parsed_j["doc"]["Titel"]
+        diction['date'] = parsed_j['doc']['Inhoudsdatering']
+        diction['medium'] = parsed_j['doc']['Materiaalsoort'][0]
         diction['institution'] = 'Nationaal Archief'
-        diction['department'] = parsed_j["doc"]["Serie_Collectie"][0]
+        diction['department'] = parsed_j['doc']['Serie_Collectie'][0]
         dict['accession_number'] = (
             '{} (archive inventory number), '
             '{} (file number)'
         ).format(
-            parsed_j["doc"]["Nummer_toegang"],
-            parsed_j["doc"]["Bestanddeelnummer"][0]
+            parsed_j['doc']['Nummer_toegang'],
+            parsed_j['doc']['Bestanddeelnummer'][0]
         )
         diction['source'] = (
             'Nationaal Archief, '
@@ -166,20 +160,20 @@ class NationaalArchief(GenericGLAM):
             '{} |file_share_id = '
             '{} }}'
             ).format(
-                parsed_j["doc"]["Serie_Collectie"][0],
-                parsed_j["doc"]["id"]
-                parsed_j["doc"]["Bestanddeelnummer"][0]
+                parsed_j['doc']['Serie_Collectie'][0],
+                parsed_j['doc']['id'],
+                parsed_j['doc']['Bestanddeelnummer'][0]
             )
-        
-        if parsed_j["doc"]["auteursrechten_voorwaarde_Public_Domain"]:
+
+        if parsed_j['doc']['auteursrechten_voorwaarde_Public_Domain']:
             permission = 'Public Domain'
             license = '{{CC-0}}'
 
-        elif parsed_j["doc"]["auteursrechten_voorwaarde_CC_BY"]:
+        elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY']:
             permission = 'CC BY 4.0'
             license = '{{cc-by-4.0}}'
 
-        elif parsed_j["doc"]["auteursrechten_voorwaarde_CC_BY_SA"]:
+        elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
             permission = 'CC BY SA 4.0'
             license = '{{cc-by-sa-4.0}}'
 
@@ -196,11 +190,11 @@ class NationaalArchief(GenericGLAM):
                              needing categories]]\n
                             '''
 
-        elif hasPhotographerIndict:
+        elif hasPhotographerInDict:
             category_text = '[[Category:Photographs by ' \
                 + photographerName + ']]\n'
             for category in categories:
                 category_text += '[[Category:' + category + ']]\n'
         diction['category_text'] = category_text
-        #call the fill_template method of the GenericGLAM
-        return super(NationaalArchief, self).fill_template(dict, right_template)
+        # call the fill_template method of the GenericGLAM
+        return super(NationaalArchief, self).fill_template(diction, right_template)
