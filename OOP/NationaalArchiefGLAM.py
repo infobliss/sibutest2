@@ -1,106 +1,41 @@
 # -*- coding: utf-8 -*-
 
-from GenericGLAM import GenericGLAM
 import json
+import re
 try:
     import urllib.request as urllib2
 except ImportError:
     import urllib2
 
-
-def photographers_dict(photographerName):
-    '''Function to return a cleaned up name from a known photographer'''
-    photographersAnefo = {
-        'Zeylemaker, Co / Anefo': 'Co Zeylemaker',
-        'Wisman, Bram / Anefo': 'Bram Wisman',
-        'Winterbergen / Anefo': 'Winterbergen',
-        'Winterbergen, […] / Anefo / Anefo': 'Winterbergen',
-        'Walta, Winfried / Anefo': 'Winfried Walta',
-        'Vollebregt, Sjakkelien / Anefo': 'Sjakkelien Vollebregt',
-        'Voets, Jan / Anefo': 'Jan Voets',
-        'Verhoeff, Bert / Anefo': 'Bert Verhoeff‎',
-        'Suyk, Koen / Anefo': 'Koen Suyk',
-        'Steinmeier, Hans / Anefo': 'Hans Steinmeier',
-        'Snikkers, […] / Anefo / Anefo': 'Snikkers',
-        'Snikkers / Anefo / Anefo': 'Snikkers',
-        'Smulders, Jean / Anefo': 'Jean Smulders',
-        'Sagers, Harry / Anefo': 'Harry Sagers',
-        'Rossem, Wim van / Anefo': 'Wim van Rossem',
-        'Renes, Dick / Anefo': 'Dick Renes',
-        'Raucamp, Koos / Anefo': 'Koos Raucamp',
-        'Punt, […] / Anefo': 'Punt',
-        'Punt / Anefo': 'Punt',
-        'Presser, Sem / Anefo': 'Sem Presser',
-        'Pot, Harry / Anefo': 'Harry Pot‎',
-        'Poll, Willem van de / Anefo': 'Willem van de Poll',
-        'Peters, Hans / Anefo': 'Hans Peters',
-        'Pereira, Fernando / Anefo': 'Fernando Pereira',
-        'Noske, Daan / Anefo': 'Daan Noske',
-        'Noske, J.D. / Anefo': 'Daan Noske',
-        'Nijs, Jack de / Anefo': 'Jack de Nijs',
-        'Nijs, Jac. de / Anefo': 'Jack de Nijs',
-        'Molendijk, Bart / Anefo': 'Bart Molendijk',
-        'Mieremet, Rob / Anefo': 'Rob Mieremet',
-        'Merk, Ben / Anefo': 'Ben Merk',
-        'Lindeboom, Henk / Anefo': 'Henk Lindeboom',
-        'Kroon, Ron / Anefo': 'Ron Kroon',
-        'Koch, Eric / Anefo': 'Eric Koch',
-        'Jongerhuis‎, Pieter / Anefo': 'Pieter Jongerhuis‎',
-        'Haren Noman, Theo van / Anefo': 'Theo van Haren Noman',
-        'Ham, Piet van der / Anefo': 'Piet van der Ham‎',
-        'Gerrits, Roland / Anefo': 'Roland Gerrits',
-        'Gelderen, Hugo van / Anefo': 'Hugo van Gelderen',
-        'Evers, Joost / Anefo': 'Joost Evers',
-        'Duinen, van / Anefo': 'van Duinen',
-        'Duinen, […] van / Anefo': 'van Duinen',
-        'Dijk, Hans van / Anefo': 'Hans van Dijk',
-        'Croes, Rob / Anefo': 'Rob Croes',
-        'Croes, Rob C. / Anefo': 'Rob Croes',
-        'Consenheim, Wim / Anefo': 'Wim Consenheim',
-        'Buiten, Klaas van / Anefo': 'Klaas van Buiten',
-        'Broers, F.N. / Anefo': 'F.N. Broers',
-        'Brinkman, Dave / Anefo': 'Dave Brinkman',
-        'Breijer, Charles / Anefo': 'Charles Breijer',
-        'Bogaerts, Rob / Anefo': 'Rob Bogaerts',
-        'Bilsen, Joop van / Anefo': 'Joop van Bilsen',
-        'Behrens, Herbert / Anefo': 'Herbert Behrens',
-        'Antonisse, Marcel / Anefo': 'Marcel Antonisse',
-        'Andriesse, Emmy / Anefo': 'Emmy Andriesse'
-    }
-    photographersNotAnefo = {
-        'Harry Pot': 'Harry Pot‎',
-        'Poll, Willem van de': 'Willem van de Poll'
-    }
-
-    if photographerName in photographersAnefo:
-        return True, photographersAnefo[photographerName], True
-    elif photographerName in photographersNotAnefo:
-        return True, photographersNotAnefo[photographerName], False
-    else:
-        return False, None, False
+from GenericGLAM import GenericGLAM
 
 
 class NationaalArchief(GenericGLAM):
-
     glam_name = 'Nationaal Archief'
 
     def choose_correct_template(url):
         parsed_j = json.loads(urllib2.urlopen(url).read())
 
-        '''TODO: do some processing to choose the right template,
-               return 1 if unable to decide'''
+        # TODO: do some processing to choose the right template,
+        # return 'Photograph' if unable to decide
         return 'Photograph', parsed_j
 
-    def fill_template(self, url, category):
-        categories = [category]
+    @classmethod
+    def fill_template(self, url):
         try:
-            right_template, parsed_j = self.choose_correct_template(url)
+            infobox_type, parsed_j = self.choose_correct_template(url)
         except Exception:
-            print('Incorrect URL given')
+            raise ValueError('Incorrect URL given')  # FIXME: raise, don't print
+
+        # TODO: form the url if (glam + uid) is given
+
+        # call the fill_template method of the GenericGLAM
+        super(NationaalArchief, self).__init__(
+            infobox_type, url)
 
         # perform the glam specific metadata mapping here
         # and form the dictionary
-        diction = {
+        mapping = {
             'depicted_people': '',
             'depicted_place': '',
             'dimensions': '',
@@ -117,84 +52,73 @@ class NationaalArchief(GenericGLAM):
 
         creator = parsed_j['doc']['Vervaardiger'][0]
 
-        if creator in ['[onbekend]', 'Onbekend', 'Fotograaf Onbekend']:
+        if 'onbekend' in creator.lower():
             photographer = '{{unknown}}'
-            hasPhotographerInDict = False
-        elif creator == 'Fotograaf Onbekend / Anefo':
-            photographer = '{{unknown}} (Anefo)'
-            hasPhotographerInDict = False
-        elif creator == 'Fotograaf Onbekend / DLC':
-            photographer = '''
-                           '{{unknown}} (Fotocollectie Dienst voor
-                            Legercontacten Indonesië)'
-                           '''
-            hasPhotographerInDict = False
+            if creator.endswith(' / Anefo'):
+                photographer += ' (Anefo)'
+            elif creator.endswith(' / DLC'):
+                photographer += ('(Fotocollectie Dienst voor '
+                                 'Legercontacten Indonesië)')
         else:
-            hasPhotographerInDict, photographerName, isAnefo = photographers_dict(creator)
-            if hasPhotographerInDict:
-                photographer = photographerName
-            else:
-                photographer = str(creator)
+            photographer = re.sub(r'( / Anefo)+$', '', creator)
+            isAnefo = photographer != creator
+            photographer = re.sub(r'(, )?\[…\](?(1)$| ?)', '', photographer)
+            photographer = re.sub(
+                r'^([^,]+), ([^,]+)$', r'\2 \1', photographer)
             if isAnefo:
                 photographer += ' (Anefo)'
-        diction['photographer'] = photographer
+
+        mapping['photographer'] = photographer
+
         # check if the title is empty
-        diction['title'] = parsed_j['doc']['Titel'] or 'zonder titel'
+        mapping['title'] = parsed_j['doc']['Titel'] or 'zonder titel'
         # TODO: Add the language tag by guessing the language
         # of the title and description
-        diction['description'] = parsed_j['doc']['Inhoud'] or parsed_j["doc"]["Titel"]
-        diction['date'] = parsed_j['doc']['Inhoudsdatering']
-        diction['medium'] = parsed_j['doc']['Materiaalsoort'][0]
-        diction['institution'] = 'Nationaal Archief'
-        diction['department'] = parsed_j['doc']['Serie_Collectie'][0]
-        dict['accession_number'] = (
+        mapping['description'] = parsed_j['doc']['Inhoud'] or mapping['title']
+
+        mapping['date'] = parsed_j['doc']['Inhoudsdatering']
+        mapping['medium'] = parsed_j['doc']['Materiaalsoort'][0]
+        mapping['institution'] = 'Nationaal Archief'
+        mapping['department'] = parsed_j['doc']['Serie_Collectie'][0]
+
+        mapping['accession_number'] = (
             '{} (archive inventory number), '
             '{} (file number)'
         ).format(
             parsed_j['doc']['Nummer_toegang'],
             parsed_j['doc']['Bestanddeelnummer'][0]
         )
-        diction['source'] = (
-            'Nationaal Archief, '
-            '{} {{Nationaal Archief-source|UUID = '
-            '{} |file_share_id = '
-            '{} }}'
-            ).format(
-                parsed_j['doc']['Serie_Collectie'][0],
-                parsed_j['doc']['id'],
-                parsed_j['doc']['Bestanddeelnummer'][0]
-            )
+        mapping['source'] = (
+            'Nationaal Archief, {} '
+            '{{{{Nationaal Archief-source|UUID = {} '
+            '|file_share_id = {} }}}}'
+        ).format(
+            parsed_j['doc']['Serie_Collectie'][0],
+            parsed_j['doc']['id'],
+            parsed_j['doc']['Bestanddeelnummer'][0]
+        )
 
         if parsed_j['doc']['auteursrechten_voorwaarde_Public_Domain']:
-            permission = 'Public Domain'
-            license = '{{CC-0}}'
-
+            mapping['permission'] = 'Public Domain'
+            mapping['license'] = '{{CC-0}}'
         elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY']:
-            permission = 'CC BY 4.0'
-            license = '{{cc-by-4.0}}'
-
+            mapping['permission'] = 'CC BY 4.0'
+            mapping['license'] = '{{cc-by-4.0}}'
         elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
-            permission = 'CC BY SA 4.0'
-            license = '{{cc-by-sa-4.0}}'
-
+            mapping['permission'] = 'CC BY SA 4.0'
+            mapping['license'] = '{{cc-by-sa-4.0}}'
         else:
-            permission = ''
-            license = ''
-        diction['license'] = license
-        diction['permission'] = permission
-        diction['glam_name'] = 'Nationaal Archief'
+            mapping['permission'] = ''
+            mapping['license'] = ''
 
-        if categories[0]:
-            category_text = '''
-                             [[Category:Images from the Nationaal Archief
-                             needing categories]]\n
-                            '''
+        mapping['glam_name'] = 'Nationaal Archief'
 
-        elif hasPhotographerInDict:
-            category_text = '[[Category:Photographs by ' \
-                + photographerName + ']]\n'
-            for category in categories:
-                category_text += '[[Category:' + category + ']]\n'
-        diction['category_text'] = category_text
-        # call the fill_template method of the GenericGLAM
-        return super(NationaalArchief, self).fill_template(diction, right_template)
+        # TODO: Solve category redirects?
+        categories = ['[[Category:Images from the '
+                      'Nationaal Archief needing categories]]']
+        if '{{unknown' not in photographer.lower():
+            categories.append(
+                '[[Category:Photographs by {}]]'.format(photographer))
+        mapping['category_text'] = '\n'.join(categories)
+
+        return super(NationaalArchief, self).fill_template(mapping)
