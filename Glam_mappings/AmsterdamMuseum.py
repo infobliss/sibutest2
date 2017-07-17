@@ -51,6 +51,24 @@ def parse_acquisition(date, method):
         .format(date=date, type=acquisition_type)
 
 
+def parse_dimension(dimensions):
+    '''
+    function to parse the different types of dimensions into a size template
+    '''
+    types = {'hoogte': 'height', 'breedte': 'width', 'lengte': 'length', 'diepte': 'depth'
+        , 'diameter': 'diameter', 'dikte': 'thickness'}
+    size_str = '{{Size'
+    unit = dimensions[0]['dimension.unit'][0]
+    size_str += '|' + unit
+    for dimension in dimensions:
+        if dimension['dimension.type'][0] in types:
+            size_str += '|' + types[dimension['dimension.type'][0]] + '|' + dimension['dimension.value'][0]
+        else:
+            size_str += '|' + dimension['dimension.value'][0]
+    size_str += '}}'
+    return size_str
+
+
 def json_to_wikitemplate(data):
     parameters=wikitemplates.get_art_photo_parameters()
     print(data)
@@ -58,7 +76,9 @@ def json_to_wikitemplate(data):
         parameters['object_history'] = parse_acquisition(data['acquisition.date'][0], data['acquisition.method'][0])
     if 'credit_line' in data:
         parameters['credit_line'] = '{{nl|' + data['credit_line'][0] + '}}'
-
+    print(parse_dimension(data['dimension']))
+    if 'dimension' in data:
+        parameters['dimensions'] = parse_dimension(data['dimension'])
 
 
 
