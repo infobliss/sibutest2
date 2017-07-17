@@ -24,7 +24,7 @@ art_photo_parameters = {
       'other_versions': ''
 }
 
-art_photo_template = '''
+art_photo_template = '''\
 {{{{Art Photo
  |artist             = {artist}
  |title              = {title}
@@ -77,8 +77,8 @@ photograph_parameters = {
       'camera coord': ''
  }
 
-photograph_template = '''
-{{Photograph
+photograph_template = '''\
+{{{{Photograph
  |photographer       = {photographer}
  |title              = {title}
  |description        = {description}
@@ -102,11 +102,5 @@ photograph_template = '''
  |wikidata           = {wikidata}
  |camera coord       = {camera_coord}
 
-== {{int:license-header}} ==
-{{{glam_name}}}
-{{{license}}}
-
-{category_text}
-
-}}
+}}}}
 '''
