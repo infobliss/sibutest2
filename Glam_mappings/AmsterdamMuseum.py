@@ -79,6 +79,9 @@ def json_to_wikitemplate(data):
     print(parse_dimension(data['dimension']))
     if 'dimension' in data:
         parameters['dimensions'] = parse_dimension(data['dimension'])
+    if 'title' in data:
+        parameters['title'] = data['title'][0]
+
 
 
 
