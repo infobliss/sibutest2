@@ -91,7 +91,7 @@ def load_from_url(url, categories, nocat=True, uploading=False):
     try:
         jstring=urllib2.urlopen(url).read()
     except:
-        return 1
+        return 1, ""
     parsed_j = json.loads(jstring.decode())    #not using decode() throws TypeError
     
     articletext='== {{int:filedesc}} ==\n{{Photograph\n |photographer       = '
@@ -207,7 +207,7 @@ def load_from_url(url, categories, nocat=True, uploading=False):
     if uploading and permission:
         upload_file(image_url, articletext, articletitle)
 
-    return 0
+    return 0, articletitle
     #pprint(parsed_j)
 
     #collection=file.getElementsByTagName("dc:isPartOf")
@@ -243,11 +243,11 @@ def main(uuid, category, username, a, b):
 
     #categories=['Draughts Dutch Championship'] #categories to be added to the images
     nocat=False #true if the categories above are not sufficient, false if they are sufficient
-    categories=[category]
-    isFine = load_from_url(sendurl, categories, nocat, uploading=True)
+    categories=category
+    isFine, filename = load_from_url(sendurl, categories, nocat, uploading=True)
 
 
-    return isFine
+    return isFine, filename
 
 if __name__ == "__main__":
     main()

@@ -55,7 +55,7 @@ def receiveData():
             categories.append(flask.request.form[key]) 
             print("Multiple categories exist. Appended.")  
     glam_list = listOfGlams
-    
+    print(glam1) 
     try:
         for glam in glam_list: 
             if glam['name'] == glam1:

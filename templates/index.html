@@ -26,7 +26,8 @@
             border: 1px solid #ccc;
             box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
         }
-        #result {
+        #result, 
+        #sampleUrl {
            font-family: "Lato", sans-serif;
            color:#286090;
            text-align: center; 
@@ -155,12 +156,13 @@
                
               <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
                    <option value="" selected="selected" disabled>-- Choose GLAM --</option> 
-                   <option value="The Nationaal Archief or NA : the national archive of the Netherlands, located in The Hague">Nationaal Archief</option>
-                   <option value="The British Museum : dedicated to human history, art and culture, and is located in the Bloomsbury area of London.">British Museum</option>
+                   <option value="The Nationaal Archief">Nationaal Archief</option>
+                   <option value="The British Museum">British Museum</option>
                  </select>
               </p>
               <div id="result"></div> 
               <p><input type="text" name='uuid' required  placeholder="Unique ID of image (Click on Help button if in doubt)"></p>
+              <div id="sampleUrl"></div>
               <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
               <p>&nbsp;&nbsp;More category?&nbsp;
               <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
@@ -168,7 +170,18 @@
               </p>
               <script type="text/javascript">
                   function dropdownTip(value){
-                  document.getElementById("result").innerHTML = '<p>'+value+'</p>';
+                      switch(value) {
+                        case "The Nationaal Archief": 
+                          document.getElementById("result").innerHTML = '<p>The national archive of the Netherlands, located in The Hague</p>';
+                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: http://proxy.handle.net/10648/a9deaf60-d0b4-102d-bcf8-003048976d84</p><p>Sample Unique ID: a9deaf60-d0b4-102d-bcf8-003048976d84';
+                          break;
+                        case "The British Museum":
+                          document.getElementById("result").innerHTML = '<p>The British museum is located in the Bloomsbury area of London</p>';
+                          document.getElementById("sampleUrl").innerHTML = '<p>The British museum is not metadata mapped yet</p>';
+                          break;
+                        default:
+                          document.getElementById("result").innerHTML = '<p>'+value+'</p>';
+                      }
                   }
               </script>
               <script>
