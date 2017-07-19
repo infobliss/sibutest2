@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+# !/usr/bin/python
 
 import json
 import re
+import sys
+sys.path.append("..")
+from unidecode import unidecode
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -10,28 +14,27 @@ except ImportError:
 from GenericGLAM import GenericGLAM
 
 
-class NationaalArchief(GenericGLAM):
+class NationaalArchiefGLAM(GenericGLAM):
     glam_name = 'Nationaal Archief'
 
-    def choose_correct_template(url):
-        parsed_j = json.loads(urllib2.urlopen(url).read())
+    def __init__(self, infobox_type, url):
+        print('hello from NA subclass __init__')
+        super(GenericGLAM, self).__init__(infobox_type)
 
-        # TODO: do some processing to choose the right template,
-        # return 'Photograph' if unable to decide
+    def choose_correct_template(self, url):
+        print("Url from choose_correct_template() " + url)
+        parsed_j = json.loads(urllib2.urlopen(url).read().decode())
+
+        # For NA Glam 'Photograph' infobox type applies to all the images
         return 'Photograph', parsed_j
 
-    @classmethod
-    def fill_template(self, url):
+    def fill_template(self, uuid):
+        # Form the url if (glam + uuid) is given
+        url = 'http://www.gahetna.nl/beeldbank-api/zoek/' + uuid
         try:
             infobox_type, parsed_j = self.choose_correct_template(url)
         except Exception:
             raise ValueError('Incorrect URL given')  # FIXME: raise, don't print
-
-        # TODO: form the url if (glam + uid) is given
-
-        # call the fill_template method of the GenericGLAM
-        super(NationaalArchief, self).__init__(
-            infobox_type, url)
 
         # perform the glam specific metadata mapping here
         # and form the dictionary
@@ -121,4 +124,35 @@ class NationaalArchief(GenericGLAM):
                 '[[Category:Photographs by {}]]'.format(photographer))
         mapping['category_text'] = '\n'.join(categories)
 
-        return super(NationaalArchief, self).fill_template(mapping)
+        # generate filename and find the image url
+        images = parsed_j["doc"]["images"]
+        # extract the key
+        [(key, URLvalues)] = images.items()
+
+        gotimage = False
+        for image in URLvalues:
+            if '10000x10000' in image["url"] and not gotimage:
+                gotimage = True
+                image_url = image["url"]
+
+        if len(mapping['title']) > 85:
+            # cut off the description if it's longer than 85 tokens at a space around 85.
+            filetitle = mapping['title'][:90]
+            cutposition = filetitle.rfind(' ')
+            if(cutposition > 20):
+                filetitle = re.sub('[:/#\[\]\{\}<>\|_]', '', unidecode(filetitle[:cutposition]))
+        else:
+            filetitle = re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(mapping['title']))
+        articletitle = (
+            '{} - Nationaal Archief - '
+            '{}.jpg').format(
+                filetitle,
+                parsed_j['doc']['Bestanddeelnummer'][0]
+
+            )
+
+        mapping['file_location'] = image_url
+        mapping['filename'] = articletitle
+
+        # call the fill_template method of the GenericGLAM (later return)
+        super(NationaalArchiefGLAM, self).fill_template(mapping)
