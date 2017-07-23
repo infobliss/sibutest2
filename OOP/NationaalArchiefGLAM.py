@@ -11,15 +11,16 @@ try:
 except ImportError:
     import urllib2
 
-from GenericGLAM import GenericGLAM
+print("Sys path is " + str(sys.path))
+from OOP.GenericGLAM import GenericGLAM
 
 
 class NationaalArchiefGLAM(GenericGLAM):
     glam_name = 'Nationaal Archief'
 
-    def __init__(self, infobox_type, url):
+    def __init__(self, infobox_type):
         print('hello from NA subclass __init__')
-        super(GenericGLAM, self).__init__(infobox_type)
+        super(NationaalArchiefGLAM, self).__init__(infobox_type)
 
     def choose_correct_template(self, url):
         print("Url from choose_correct_template() " + url)
@@ -28,7 +29,8 @@ class NationaalArchiefGLAM(GenericGLAM):
         # For NA Glam 'Photograph' infobox type applies to all the images
         return 'Photograph', parsed_j
 
-    def fill_template(self, uuid):
+    def fill_template(self, uuid, username):
+        print('fill_template inside NA_GLAM invoked.')
         # Form the url if (glam + uuid) is given
         url = 'http://www.gahetna.nl/beeldbank-api/zoek/' + uuid
         try:
@@ -153,6 +155,6 @@ class NationaalArchiefGLAM(GenericGLAM):
 
         mapping['file_location'] = image_url
         mapping['filename'] = articletitle
-
+        mapping['username'] = username
         # call the fill_template method of the GenericGLAM (later return)
         super(NationaalArchiefGLAM, self).fill_template(mapping)

@@ -72,7 +72,7 @@ def receiveData():
         objNA = NationaalArchiefGLAM('Photograph')
         print('The NA object has been instantiated.')
         try:
-            wiki_location = objNA.fill_template(id)
+            wiki_location = objNA.fill_template(id, username)
             return flask.render_template('results.html', glam_name=glam1, uuid=id, filename=wiki_location)
         except Exception:
             return flask.render_template('error.html', imageId=id)
