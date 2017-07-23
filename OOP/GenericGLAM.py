@@ -45,7 +45,8 @@ class GenericGLAM:
             print('Bot was run.')
 
     def fill_template(self, parameters):
-        print('fill_template inside GenricGLAM invoked.')        
+        print('fill_template inside GenricGLAM invoked.')     
+ 
         '''fill the template based on the values provided by the derived GLAM class'''
         if self.template_type == 'Photograph':
             # Consider that default template is photograph template
@@ -53,7 +54,7 @@ class GenericGLAM:
             # To be displayed to the user for editing
         else:
             wikitext = art_photo_template.format(**parameters)
-        # return wikitext
+
         # upload the file if the permission is ok
         print('Outside Permission is ' + parameters['permission'])
         if parameters['permission']:

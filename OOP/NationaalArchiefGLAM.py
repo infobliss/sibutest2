@@ -6,6 +6,10 @@ import re
 import sys
 sys.path.append("..")
 from unidecode import unidecode
+
+import json
+import re
+
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -37,6 +41,12 @@ class NationaalArchiefGLAM(GenericGLAM):
             infobox_type, parsed_j = self.choose_correct_template(url)
         except Exception:
             raise ValueError('Incorrect URL given')  # FIXME: raise, don't print
+
+        # TODO: form the url if (glam + uid) is given
+
+        # call the fill_template method of the GenericGLAM
+        super(NationaalArchief, self).__init__(
+            infobox_type, url)
 
         # perform the glam specific metadata mapping here
         # and form the dictionary
@@ -150,7 +160,6 @@ class NationaalArchiefGLAM(GenericGLAM):
             '{}.jpg').format(
                 filetitle,
                 parsed_j['doc']['Bestanddeelnummer'][0]
-
             )
 
         mapping['file_location'] = image_url

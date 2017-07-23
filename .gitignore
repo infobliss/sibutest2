@@ -1,0 +1,6 @@
+/venv
+*~
+*.pyc
+/apicache
+/throttle.ctrl
+/pywikibot.lwp
