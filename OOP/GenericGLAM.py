@@ -11,14 +11,14 @@ from pywikibot.specialbots import UploadRobot
 class GenericGLAM:
     def __init__(self, template_type):
         self.template_type = template_type
-        print("GenericGLAM __init__() called ")
+        print("GenericGLAM __init__() called with " + template_type)
 
     def upload_file(self, file_location, description, filename, username):
         '''
         Given a description, file_location and filename this function uploads the file at the file location
         using the description using the filename given as filename on Commons.
         '''
-        print('inside upload_file()')
+        print('inside upload_file() username=' + username)
         print('file location is ' + file_location)
         #urls = [file_location]
         #bot = UploadRobot(urls, description=description, useFilename=filename, keepFilename=True, verifyDescription=False, aborts=True) # , uploadByUrl=True
@@ -45,7 +45,7 @@ class GenericGLAM:
             print('Bot was run.')
 
     def fill_template(self, parameters):
-        print('fill_template inside GenricGLAM invoked.')     
+        print('fill_template inside GenricGLAM invoked, username=' + parameters['username'])     
  
         '''fill the template based on the values provided by the derived GLAM class'''
         if self.template_type == 'Photograph':
@@ -57,8 +57,11 @@ class GenericGLAM:
 
         # upload the file if the permission is ok
         print('Outside Permission is ' + parameters['permission'])
-        if parameters['permission']:
-            print('Permission is ' + parameters['permission'])
-            self.upload_file(parameters['file_location'], wikitext, parameters['filename'], parameters['username'])
-            print('upload_file() called from GenericGLAM')
-            return parameters['filename']
+        try:
+            if parameters['permission']:
+                print('Permission is ' + parameters['permission'])
+                self.upload_file(parameters['file_location'], wikitext, parameters['filename'], parameters['username'])
+                print('upload_file() called from GenericGLAM')
+        except Exception as e:
+            print(e)
+        return parameters['filename']

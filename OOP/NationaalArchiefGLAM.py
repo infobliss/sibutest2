@@ -39,17 +39,16 @@ class NationaalArchiefGLAM(GenericGLAM):
         url = 'http://www.gahetna.nl/beeldbank-api/zoek/' + uuid
         try:
             infobox_type, parsed_j = self.choose_correct_template(url)
-        except Exception:
-            raise ValueError('Incorrect URL given')  # FIXME: raise, don't print
+        except Exception as e:
+            print('Incorrect URL given: ' + e)  # FIXME: raise, don't print
 
         # TODO: form the url if (glam + uid) is given
 
-        # call the fill_template method of the GenericGLAM
-        super(NationaalArchief, self).__init__(
-            infobox_type, url)
+       
 
         # perform the glam specific metadata mapping here
         # and form the dictionary
+        print('Mapping began...')
         mapping = {
             'depicted_people': '',
             'depicted_place': '',
@@ -165,5 +164,6 @@ class NationaalArchiefGLAM(GenericGLAM):
         mapping['file_location'] = image_url
         mapping['filename'] = articletitle
         mapping['username'] = username
+        print('End of NA fill_template username=' + username)
         # call the fill_template method of the GenericGLAM (later return)
         super(NationaalArchiefGLAM, self).fill_template(mapping)
