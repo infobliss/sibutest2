@@ -69,6 +69,44 @@ def parse_dimension(dimensions):
     return size_str
 
 
+def parse_artist(makers):
+    number_of_makers = len(makers)
+    if number_of_makers == 1 and makers[0]['creator'][0] == 'onbekend':
+        return '{{unknown|author}}'
+    makertext= ''
+    first = True
+    for maker in makers:
+        if not first:
+            makertext += ', '
+        makertext += maker['creator'][0]
+        if maker['creator.date_of_birth'][0] != '' and maker['creator.date_of_death'][0] != '':
+            makertext += (' (' + maker['creator.date_of_birth'][0] + ' - ' + maker['creator.date_of_death'][0] + ')')
+        if maker['creator.qualifier'][0] != '':
+            makertext += (' ({{nl|' + maker['creator.qualifier'][0] + '}})')
+        if maker['creator.role'][0] != '':
+            makertext += (' ({{nl|' + maker['creator.role'][0] + '}})')
+        first=False
+    return makertext
+
+
+def parse_references(documentation):
+    referencestext = ''
+    for document in documentation:
+        referencestext+='{{Cite book|author=' + document['documentation.author'][0]\
+                        + '|title=' + document['documentation.title'][0]  \
+                        + '|year=' + document['documentation.sortyear'][0]  \
+                        + '|page=' + document['documentation.page_reference'][0]  \
+                        + '|chapter=' + document['documentation.title.article'][0] \
+                        + '}}'
+    return referencestext
+
+
+def parse_date(start, end):
+    if start == end:
+        return start
+    else:
+        return start + '-' + end
+
 def json_to_wikitemplate(data):
     parameters=wikitemplates.get_art_photo_parameters()
     print(data)
@@ -76,14 +114,30 @@ def json_to_wikitemplate(data):
         parameters['object_history'] = parse_acquisition(data['acquisition.date'][0], data['acquisition.method'][0])
     if 'credit_line' in data:
         parameters['credit_line'] = '{{nl|' + data['credit_line'][0] + '}}'
-    print(parse_dimension(data['dimension']))
     if 'dimension' in data:
         parameters['dimensions'] = parse_dimension(data['dimension'])
     if 'title' in data:
         parameters['title'] = data['title'][0]
-
-
-
+    if 'maker' in data:
+        parameters['artist'] = parse_artist(data['maker'])
+    if 'documentation' in data:
+        parameters['references'] = parse_references(data['documentation'])
+    if 'material' in data:
+        parameters['method'] = '{{nl|materiaal: ' + ', '.join(data['material']) + '}}'
+    if 'object_name' in data:
+        parameters['method'] += '{{nl|type object: ' + ', '.join(data['object_name']) + '}}'
+    if 'technique' in data:
+        parameters['method'] += '{{nl|techniek: ' + ', '.join(data['technique']) + '}}'
+    if 'object_number' in data:
+        parameters['accession_number'] = data['object_number'][0]
+    if 'priref' in data:
+        parameters['source'] = 'Collection of the Amsterdam Museum under: ['+ data['persistent_ID'][0] + ' ' + data['priref'][0] + ']'
+    if 'production.date.end' in data and 'production.date.start' in data:
+        parameters['date'] = parse_date(data['production.date.start'][0], data['production.date.end'][0])
+    #TODO: parse descriptions
+    #TODO: how to handle duplicate images
+    #TODO: parse photograph info
+    #TODO: check license and parse template, maybe make some GLAM specific templates on commons.
 
 def main(priref, categories=[]):
     database_url = priref_to_url(priref)
@@ -100,4 +154,4 @@ def main(priref, categories=[]):
     else:
         print('no object found (recordlist)')
 
-main('http://hdl.handle.net/11259/collection.1524', 'Foto')
+main('http://hdl.handle.net/11259/collection.5782', 'Foto')
