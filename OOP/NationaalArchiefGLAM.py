@@ -166,4 +166,4 @@ class NationaalArchiefGLAM(GenericGLAM):
         mapping['username'] = username
         print('End of NA fill_template username=' + username)
         # call the fill_template method of the GenericGLAM (later return)
-        super(NationaalArchiefGLAM, self).fill_template(mapping)
+        return super(NationaalArchiefGLAM, self).fill_template(mapping)

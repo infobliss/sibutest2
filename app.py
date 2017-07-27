@@ -3,6 +3,7 @@ import mwoauth
 import os
 import yaml
 from requests_oauthlib import OAuth1
+import pywikibot
 # from NationaalArchief2 import main
 from glamFullList import listOfGlams
 from OOP.NationaalArchiefGLAM import NationaalArchiefGLAM
@@ -47,6 +48,14 @@ def login():
 def receiveData():
     # if request.method == 'POST':
     username = flask.session.get('username', None)
+    print('Configuring pywikibot...')
+    pywikibot.config.authenticate['commons.wikimedia.org'] = (
+        app.config['CONSUMER_KEY'],
+        app.config['CONSUMER_SECRET'],
+        flask.session['access_token_key'],
+        flask.session['access_token_secret'])
+    pywikibot.config.usernames['commons']['commons'] = username
+    pywikibot.Site('commons', 'commons', user=username).login()
     glam1 = flask.request.form['glam_name']
     id = flask.request.form['uuid']
     category1 = flask.request.form['categories']
@@ -73,6 +82,7 @@ def receiveData():
         print('The NA object has been instantiated.')
         try:
             wiki_location = objNA.fill_template(id, username)
+            print('Wiki loc obtained ' + wiki_location)
             return flask.render_template('results.html', glam_name=glam1, uuid=id, filename=wiki_location)
         except Exception:
             return flask.render_template('error.html', imageId=id)

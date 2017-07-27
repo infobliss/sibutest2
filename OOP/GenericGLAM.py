@@ -23,7 +23,7 @@ class GenericGLAM:
         #urls = [file_location]
         #bot = UploadRobot(urls, description=description, useFilename=filename, keepFilename=True, verifyDescription=False, aborts=True) # , uploadByUrl=True
         local_filepath, headers = urllib.request.urlretrieve(file_location)
-        wiki_file_location = 'https://commons.wikimedia.org/wiki/File:' + filename
+        wiki_file_location = 'File:' + filename
         print('Wiki file location and local path are ' + wiki_file_location + local_filepath)
         site = pywikibot.Site('commons', 'commons', user=username)
         page = pywikibot.FilePage(site, wiki_file_location)
