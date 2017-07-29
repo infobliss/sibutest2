@@ -59,7 +59,8 @@ class GenericGLAM:
         print('Outside Permission is ' + parameters['permission'])
         try:
             if parameters['permission']:
-                print('Permission is ' + parameters['permission'])
+                wikitext += '== {{int:license-header}} ==\n' + parameters['glam_name'] + '\n' + parameters['license'] + '\n\n'
+                wikitext += parameters['category_text']
                 self.upload_file(parameters['file_location'], wikitext, parameters['filename'], parameters['username'])
                 print('upload_file() called from GenericGLAM')
         except Exception as e:

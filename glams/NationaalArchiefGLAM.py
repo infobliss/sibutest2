@@ -15,9 +15,14 @@ try:
 except ImportError:
     import urllib2
 
-print("Sys path is " + str(sys.path))
 from OOP.GenericGLAM import GenericGLAM
 
+def extractUUID(url):
+    i = -1
+    while not url[i] == '/':
+        i = i-1
+    uuid = url[i+1:len(url)]
+    return uuid
 
 class NationaalArchiefGLAM(GenericGLAM):
     glam_name = 'Nationaal Archief'
@@ -36,11 +41,14 @@ class NationaalArchiefGLAM(GenericGLAM):
     def fill_template(self, uuid, username):
         print('fill_template inside NA_GLAM invoked.')
         # Form the url if (glam + uuid) is given
+        if uuid.startswith('http://proxy.handle.net/10648/'):
+            uuid = extractUUID(uuid)
+
         url = 'http://www.gahetna.nl/beeldbank-api/zoek/' + uuid
         try:
             infobox_type, parsed_j = self.choose_correct_template(url)
         except Exception as e:
-            print('Incorrect URL given: ' + e)  # FIXME: raise, don't print
+            raise ValueError('Incorrect URL given: ' + e)  # FIXME: raise, don't print
 
         # TODO: form the url if (glam + uid) is given
 
@@ -112,7 +120,8 @@ class NationaalArchiefGLAM(GenericGLAM):
             parsed_j['doc']['Bestanddeelnummer'][0]
         )
 
-        if parsed_j['doc']['auteursrechten_voorwaarde_Public_Domain']:
+        if (parsed_j['doc']['auteursrechten_voorwaarde_Public_Domain'] or
+            'CC0' in parsed_j['doc']['auteursrechten_auteursrechthebbende']):
             mapping['permission'] = 'Public Domain'
             mapping['license'] = '{{CC-0}}'
         elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY']:

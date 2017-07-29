@@ -6,7 +6,7 @@ from requests_oauthlib import OAuth1
 import pywikibot
 # from NationaalArchief2 import main
 from glamFullList import listOfGlams
-from OOP.NationaalArchiefGLAM import NationaalArchiefGLAM
+from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
 # consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['CONSUMER_SECRET'])
 
 app = flask.Flask(__name__)
@@ -84,7 +84,8 @@ def receiveData():
             wiki_location = objNA.fill_template(id, username)
             print('Wiki loc obtained ' + wiki_location)
             return flask.render_template('results.html', glam_name=glam1, uuid=id, filename=wiki_location)
-        except Exception:
+        except Exception as e:
+            print(str(e))
             return flask.render_template('error.html', imageId=id)
     returnString = 'Looks like this glam has not been metadata-mapped yet'
     return returnString
