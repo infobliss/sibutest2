@@ -48,7 +48,6 @@ class NationaalArchiefGLAM(GenericGLAM):
     def thumbnail_locator(images):
         [(key, URLvalues)] = images.items()
         gotThumb = False
-        lar
         for image in URLvalues:
             if '10000x10000' in image['url']:
                 gotThumb = True
@@ -85,6 +84,7 @@ class NationaalArchiefGLAM(GenericGLAM):
             'depicted_place': '',
             'dimensions': '',
             'references': '',
+            'permission': '',
             'object_history': '',
             'exhibition_history': '',
             'credit_line': '',
@@ -145,16 +145,12 @@ class NationaalArchiefGLAM(GenericGLAM):
 
         if (parsed_j['doc']['auteursrechten_voorwaarde_Public_Domain'] or
             'CC0' in parsed_j['doc']['auteursrechten_auteursrechthebbende']):
-            mapping['permission'] = 'Public Domain'
             mapping['license'] = '{{CC-0}}'
         elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY']:
-            mapping['permission'] = 'CC BY 4.0'
             mapping['license'] = '{{cc-by-4.0}}'
         elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
-            mapping['permission'] = 'CC BY SA 4.0'
             mapping['license'] = '{{cc-by-sa-4.0}}'
         else:
-            mapping['permission'] = ''
             mapping['license'] = ''
 
         mapping['glam_name'] = 'Nationaal Archief'
