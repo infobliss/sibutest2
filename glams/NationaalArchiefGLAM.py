@@ -15,7 +15,7 @@ try:
 except ImportError:
     import urllib2
 
-from OOP.GenericGLAM import GenericGLAM
+from libraries.GenericGLAM import GenericGLAM
 
 def extractUUID(url):
     i = -1
@@ -37,6 +37,29 @@ class NationaalArchiefGLAM(GenericGLAM):
 
         # For NA Glam 'Photograph' infobox type applies to all the images
         return 'Photograph', parsed_j
+
+    def license_checker(mapping):
+        if(mapping['license'] == '{{CC-0}}'
+            or mapping['license'] == '{{cc-by-4.0}}'
+            or mapping['license'] == '{{cc-by-sa-4.0}}'): 
+            return True
+        return False
+
+    def thumbnail_locator(images):
+        [(key, URLvalues)] = images.items()
+        gotThumb = False
+        lar
+        for image in URLvalues:
+            if '10000x10000' in image['url']:
+                gotThumb = True
+                thumb_url = image['url']
+            if gotThumb == False:
+                # take the first thumb if 10000*10000 thumb don't exist
+                for image in URLvalues:
+                    thumb_url = image['url']
+                    break
+
+        return thumb_url
 
     def fill_template(self, uuid, username):
         print('fill_template inside NA_GLAM invoked.')

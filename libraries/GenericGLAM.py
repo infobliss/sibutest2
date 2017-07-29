@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python
-from OOP.infobox_templates import photograph_template, art_photo_template
+from libraries.infobox_templates import photograph_template, art_photo_template
 import sys
 sys.path.append("..")
 import urllib.request
@@ -12,6 +12,12 @@ class GenericGLAM:
     def __init__(self, template_type):
         self.template_type = template_type
         print("GenericGLAM __init__() called with " + template_type)
+
+    def license_checker(mapping):
+        return False
+
+    def thumbnail_locator(images):
+        return None
 
     def upload_file(self, file_location, description, filename, username):
         '''
