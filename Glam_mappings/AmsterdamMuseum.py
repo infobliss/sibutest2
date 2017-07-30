@@ -1,5 +1,6 @@
 import re
 import json
+#urllib works different in python 2 and 3 try catch to get the correct one
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -10,7 +11,8 @@ import libraries.infobox_templates as wikitemplates
 
 def load_from_url(url):
     '''
-    function which loads and parses the json from the database url
+    Function which loads and parses the json from the database url.
+    Input is url with json, output is dictionary with the structure from the json
     '''
     #TODO: Make this code work in both python2 and 3, now it works locally in 3 and the py2 code is in nationaalarchief
     jstring=urllib2.urlopen(url).read().decode('utf-8')
@@ -20,7 +22,10 @@ def load_from_url(url):
 
 def priref_to_url(priref):
     '''
-    function which parses different priref-formats (identifiers) to an url in the database
+    Function which parses different priref-formats (identifiers) to an url in the database.
+    Either a priref or (correct) url with  priref should be given.
+    Examples: "5782" and "http://hdl.handle.net/11259/collection.5782"
+    A link to the database json location will be returned.
     '''
     priref = str(priref)
     is_number = re.match('\d+$', priref)
@@ -36,10 +41,25 @@ def priref_to_url(priref):
 
 def parse_acquisition(date, method):
     '''
-    function to parse the different types of acquisition into a provenanceevent template
+    Function to parse the different types of acquisition into the ProvenanceEvent wikitemplate.
+    The date of acquisition and the method are given.
+    A complete list of possible values for the method within the Amsterdam Museum data can be found at:
+    http://amdata.adlibsoft.com/wwwopac.ashx?command=facets&database=AMcollect&search=all&facet=acquisition.method&limit=50&output=json
+    Only the most common values (75+ occurances) have been mapped here
     '''
-    types = {'schenking': 'gift', 'overdracht': 'acquisition', 'legaat': 'inheritance', 'aankoop': 'purchase'
-        , 'bruikleen': 'loan'}
+    types = {'schenking': 'gift',
+             'legaat': 'bequest',
+             'aankoop': 'purchase',
+             'bruikleen': 'loan',
+             'onbekend': 'in collection',
+             'overdracht': 'acquisition',
+             'aangetroffen': 'discovery',
+             'oud stadsbezit': 'transfer',
+             'bruikleen / schenking': 'loan',
+             'opdracht museum': 'commission',
+             'onteigening': 'nationalization',
+             'ruil': 'exchange',
+             'bodemvondst': 'excavation'}
     acquisition_type = 'in collection' #default if not known
     if date == '0000' and method == 'onbekend':
         return ''
@@ -53,10 +73,19 @@ def parse_acquisition(date, method):
 
 def parse_dimension(dimensions):
     '''
-    function to parse the different types of dimensions into a size template
+    Function to parse the different types of dimensions into a size template.
+    Unit (cm, gram, etc.) type of dimension and the value are given.
+    A complete list of possible values for the type within the Amsterdam Museum data can be found at:
+    http://amdata.adlibsoft.com/wwwopac.ashx?command=facets&database=AMcollect&search=all&facet=dimension.type&limit=50&output=json
     '''
-    types = {'hoogte': 'height', 'breedte': 'width', 'lengte': 'length', 'diepte': 'depth'
-        , 'diameter': 'diameter', 'dikte': 'thickness'}
+    #TODO: correct mapping for multiple sizes (twice hoogte and breedte) hoogte a, etc.
+    #TODO: What to do with weight (gewicht) in grams, size doesn't support this?
+    types = {'hoogte': 'height',
+             'breedte': 'width',
+             'lengte': 'length',
+             'diepte': 'depth',
+             'diameter': 'diameter',
+             'dikte': 'thickness'}
     size_str = '{{Size'
     unit = dimensions[0]['dimension.unit'][0]
     size_str += '|' + unit
@@ -70,6 +99,12 @@ def parse_dimension(dimensions):
 
 
 def parse_artist(makers):
+    '''
+    first check whether an artist is given (if not return unknown-template).
+    If an artist is known the date of death + birth and the role of the creator are appended behind their name.
+    Possible improvements: reverse first and last name with regex; parse the dates; translate the roles into correct
+    template; check the creator against existing creator templates.
+    '''
     number_of_makers = len(makers)
     if number_of_makers == 1 and makers[0]['creator'][0] == 'onbekend':
         return '{{unknown|author}}'
@@ -90,6 +125,9 @@ def parse_artist(makers):
 
 
 def parse_references(documentation):
+    '''
+    Parse each reference into a cite book template (assumption is made that it mostly are books/articles).
+    '''
     referencestext = ''
     for document in documentation:
         referencestext+='{{Cite book|author=' + document['documentation.author'][0]\
@@ -102,14 +140,45 @@ def parse_references(documentation):
 
 
 def parse_date(start, end):
+    '''
+    if start and end date are the same return one date, otherwise return the dates with an '-' in between.
+    Often the date is a year range. It's unclear from this data whether it was made somewhere within this time span or
+    during the whole time span.
+    '''
     if start == end:
         return start
     else:
         return start + '-' + end
 
+
+def parse_reproduction(reproductions):
+    '''
+    The images in the Amsterdam Museum adlib data are not represented per image but per object.
+    An object can have multiple images.
+    The current procedure is to select the best image (highest resolution) as often when there are multiple images they
+    show similar parts of the object.
+    in order of quality the images are looked through. Then the data from the first hit is returned.
+    photographer, photo date and the image location are returned.
+    There is also data on the image format, reference and reference_lref (and reproduction type) these are not returned.
+    '''
+    quality_order = ['high-end scan', 'digitale opname', 'scan', 'low-res scan', ''] #high to low quality
+    for quality in quality_order:
+        for reproduction in reproductions:
+            if reproduction['reproduction.type'][0] == quality or quality == '': # if we're at the '' (empty) quality then just go for any reproduction.
+                photographer = reproduction['reproduction.creator'][0]
+                photo_date = reproduction['reproduction.date'][0]
+                #replace the internal url for an external url per https://www.amsterdammuseum.nl/open-data
+                photo_url = 'http://ahm.adlibsoft.com/ahmimages/' + reproduction['reproduction.identifier_URL'][0][27:]
+                return photographer, photo_date, photo_url
+
 def json_to_wikitemplate(data):
-    parameters=wikitemplates.get_art_photo_parameters()
-    print(data)
+    '''
+    This function receives a dictionary which is the resulting parsed json from a given object in the Amsterdam Museum
+    database e.g. http://amdata.adlibsoft.com/wwwopac.ashx?database=AMcollect&search=priref=346&output=json
+    The function then get's the parameters for the art photo infobox template and maps the values from the glams data
+    into these parameters.
+    '''
+    parameters=wikitemplates.art_photo_parameters
     if 'acquisition.date' in data:
         parameters['object_history'] = parse_acquisition(data['acquisition.date'][0], data['acquisition.method'][0])
     if 'credit_line' in data:
@@ -134,10 +203,18 @@ def json_to_wikitemplate(data):
         parameters['source'] = 'Collection of the Amsterdam Museum under: ['+ data['persistent_ID'][0] + ' ' + data['priref'][0] + ']'
     if 'production.date.end' in data and 'production.date.start' in data:
         parameters['date'] = parse_date(data['production.date.start'][0], data['production.date.end'][0])
+    if 'reproduction' in data:
+        parameters['photographer'], parameters['photo_date'], image_url = parse_reproduction(data['reproduction'])
+    else:
+        return False #does not have any images so return false
+    parameters['institution'] = '{{Institution:Amsterdam Museum}}'
+
+    print(parameters)
     #TODO: parse descriptions
-    #TODO: how to handle duplicate images
-    #TODO: parse photograph info
     #TODO: check license and parse template, maybe make some GLAM specific templates on commons.
+    wikitext = '' #TODO: replace for parameter inserted wikitext
+    return wikitext, image_url
+
 
 def main(priref, categories=[]):
     database_url = priref_to_url(priref)
