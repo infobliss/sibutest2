@@ -1,4 +1,14 @@
 ''' generic library functions '''
+import re
+
+#urllib works different in python 2 and 3 try catch to get the correct one
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
+
+import json
+import unidecode
 
 def load_json_from_url(url):
     #Function to load the json from url and get the parsed json
@@ -9,44 +19,30 @@ def load_json_from_url(url):
     parsed_json = json.loads(jstring)
     return 0, parsed_json
 
-def file_title_generator(rawtitle, glam_name, image_id, image_ext):
-    #Function to genrate a standard title for the image to be uploaded
-    if len(rawtitle)>85:
-        #cut off the description if it's longer than 85 tokens at a space around 85.
-        title = rawtitle[:90]
-        cutposition = title.rfind(' ')
-        if(cutposition>20):	
-            title = re.sub('[:/#\[\]\{\}<>\|_]', '', unidecode(title[:cutposition]))
-    else:
-        title=re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(rawtitle))
 
-    filetitle = "{}{}{}{}{}{}{}".format(title, ' - ', glam_name, ' - ',  image_id, '.', image_ext)
+def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_rawlength=90, order=[0,2,1], separator=' - '):
+    '''
+    Function to generate a standard title for the image to be uploaded
+
+    glam_filetitle: the name the file is given at the glam.
+    image_id: an identifier for the image
+    image_ext: the extension of the image
+    glam_name: the name of the glam (preferably an abbreviation)
+    max_rawlength: the maximum length of the glam_filetitle which will be used,
+        an attempt is made to crop at a nice location.
+    order: the order in which the parameters (glam_filetitle=0, image_id=1, glam_name=2), will be used
+    separator: character to separate the title elements with (including spaces if you want those)
+    '''
+    if len(glam_filetitle) > (max_rawlength-5):
+        #cut off the description if it's longer than 85 tokens at a space around 85.
+        worktitle = glam_filetitle[:max_rawlength]
+        cutposition = worktitle.rfind(' ')
+        if(cutposition>20):	
+            worktitle = re.sub('[:/#\[\]\{\}<>\|_]', '', unidecode(worktitle[:cutposition]))
+    else:
+        worktitle=re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(glam_filetitle))
+    elements = [worktitle, image_id, glam_name]
+    filetitle = "{}{}{}{}{}{}{}".format(elements[order[0]], separator, elements[order[1]], separator, elements[order[2]], '.', image_ext)
     
     return filetitle
-
-
-def photograph_template_builder(metadata) : 
-    #metadata is a dictionary with keys creator, title, description, date, medium, department, reportagename, archiefinventaris, identifier, UUID, permission, license, nocat, categories
-    #The function that builds the wiki metadata from the given values of the parameters
-    articletext="{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}".format('== {{int:filedesc}} ==\n{{Photograph\n |photographer       = ', metadata['creator'], '\n |title              = {{nl|', metadata['title'], '}}\n |description        = {{nl|', metadata['description'], '}}\n |depicted people    = ', '\n |depicted place     =\n |date               = ', metadata['date'], '\n |medium             = {{nl|', metadata['medium'], '}}\n |dimensions         =\n |institution        = Nationaal Archief\n |department         = ', metadata['department'], ', ', metadata['reportagename'], '\n |references         =\n |object history     =\n |exhibition history =\n |credit line        = ', '\n |inscriptions       =\n |notes              =\n |accession number   = ', metadata['archiefinventaris'], ' (archive inventory number), ', metadata['identifier'], ' (file number)\n |source             = ', 'Nationaal Archief, ', metadata['department'], ', {{Nationaal Archief-source|UUID=', metadata['UUID'], '|file_share_id=', metadata['identifier'], '}}\n |permission         = ', metadata['permission'], '\n |other_versions     =\n }}\n\n== {{int:license-header}} ==\n{{Nationaal Archief}}\n' , metadata['license'], '\n\n')
-
-    #collectionname=department
-    
-    if metadata['nocat']:
-        articletext="{}{}".format(articletext, '[[Category:Images from the Nationaal Archief needing categories]]\n')
-
-    if hasPhotographerInDict:
-        articletext="{}{}{}{}".format(articletext, '[[Category:Photographs by ',  metadata['photographerName'],  ']]\n')
- 
-    for category in metadata['categories']:
-        articletext="{}{}{}{}".format(articletext, '[[Category:', category , ']]\n')
-
-def upload_file(image_location, description, filename):
-    '''
-    Given a description, image_location and filename this function uploads the file at the file location using the
-    description using the filename given as filename on Commons.
-    '''
-    url=[image_location]
-    bot = UploadRobot(url, description=description, useFilename=filename, keepFilename=True, verifyDescription=False, aborts=True)
-    bot.run()
 

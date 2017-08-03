@@ -1,5 +1,7 @@
 import re
 import json
+import datetime
+
 #urllib works different in python 2 and 3 try catch to get the correct one
 try:
     import urllib.request as urllib2
@@ -171,6 +173,52 @@ def parse_reproduction(reproductions):
                 photo_url = 'http://ahm.adlibsoft.com/ahmimages/' + reproduction['reproduction.identifier_URL'][0][27:]
                 return photographer, photo_date, photo_url
 
+
+def artwork_license(data):
+    '''
+    This function tries to determine the correct (PD-old) license based on the authors date of death and date the work
+    was created.
+    '''
+    currentyear = datetime.datetime.now().year
+    known_author = False #check whether there are any known authors, initialize as false
+
+    if 'maker' in data:
+        most_recent_death = -99999 #everything should be larger
+        for author in data['maker']:
+            if len(author['creator.date_of_death'][0]) > 4: #some cases are '', for a year we need 4 chars.
+                death = int(author['creator.date_of_death'][0][:4])
+                if death > most_recent_death:
+                    most_recent_death = death
+            if(author['creator'] != 'onbekend' and author['creator'] != ''):
+                known_author = True #not anonymous
+        if most_recent_death == -99999:
+            None #No date given so go out of the loop (mostly anonymous case) to check date of creation
+        elif most_recent_death < 1923:
+            return '{{{{PD-old-auto-1923|deathyear={year}}}}}'.format(year=most_recent_death)
+        elif most_recent_death < 1926:
+            return '{{{{PD-old-auto-1996|deathyear={year}}}}}'.format(year=most_recent_death)
+        elif most_recent_death < (currentyear-70):
+            return '{{PD-old-70}}'
+        else:
+            #author died less than 70 year ago, no pd-old applicable
+            return False #can't determine a valid license, needs a check after upload.
+
+    if not known_author:
+        if 'production.date.end' in data:
+            date = data['production.date.end'][0]
+            if date < 1923:
+                return '{{PD-anon-1923}}'
+            elif date < (currentyear-70):
+                return '{{PD-anon-70-EU}}'
+    if known_author:
+        if 'production.date.end' in data:
+            date = data['production.date.end'][0]
+            if date < (currentyear-150):
+                #if the work was created more than 150 years ago we assume the author died more than 70 years ago.
+                return '{{PD-old-70}}'
+    return False #can't determine a valid license, needs a check after upload.
+
+
 def json_to_wikitemplate(data):
     '''
     This function receives a dictionary which is the resulting parsed json from a given object in the Amsterdam Museum
@@ -179,6 +227,24 @@ def json_to_wikitemplate(data):
     into these parameters.
     '''
     parameters=wikitemplates.art_photo_parameters
+    categories = ['Images from the Amsterdam Museum']
+    if 'copyright' in data:
+        if data['copyright'][0] == 'Public Domain':
+            parameters['photo_license'] = '{{PD-because|Released into the Public Domain by the copyright holder, the Amsterdam Museum}}'
+            license = artwork_license(data)
+            if license:
+                parameters['artwork_license'] = license
+            else:
+                parameters['artwork_license'] = '{{PD-because|Released into the Public Domain by the copyright holder, the Amsterdam Museum}}'
+                categories.append('Images from the Amsterdam Museum needing license check')
+        else:
+            return False #not under a free license
+    else:
+        return False #not under a free license
+    if 'reproduction' in data:
+        parameters['photographer'], parameters['photo_date'], image_url = parse_reproduction(data['reproduction'])
+    else:
+        return False #does not have any images so return false
     if 'acquisition.date' in data:
         parameters['object_history'] = parse_acquisition(data['acquisition.date'][0], data['acquisition.method'][0])
     if 'credit_line' in data:
@@ -203,17 +269,13 @@ def json_to_wikitemplate(data):
         parameters['source'] = 'Collection of the Amsterdam Museum under: ['+ data['persistent_ID'][0] + ' ' + data['priref'][0] + ']'
     if 'production.date.end' in data and 'production.date.start' in data:
         parameters['date'] = parse_date(data['production.date.start'][0], data['production.date.end'][0])
-    if 'reproduction' in data:
-        parameters['photographer'], parameters['photo_date'], image_url = parse_reproduction(data['reproduction'])
-    else:
-        return False #does not have any images so return false
     parameters['institution'] = '{{Institution:Amsterdam Museum}}'
 
     print(parameters)
     #TODO: parse descriptions
     #TODO: check license and parse template, maybe make some GLAM specific templates on commons.
-    wikitext = '' #TODO: replace for parameter inserted wikitext
-    return wikitext, image_url
+    title = create_title(parameters)
+    return parameters, image_url, title, categories
 
 
 def main(priref, categories=[]):
@@ -222,13 +284,13 @@ def main(priref, categories=[]):
     if 'recordList' in data['adlibJSON']:
         if 'record' in data['adlibJSON']['recordList']:
             if 'copyright' in data['adlibJSON']['recordList']['record'][0]:
-                json_to_wikitemplate(data['adlibJSON']['recordList']['record'][0])
-                print('object found')
+                infobox_parameters, image_url, title, categories =\
+                    json_to_wikitemplate(data['adlibJSON']['recordList']['record'][0])
             else:
-                print('no copyright information')
+                return False, 'no copyright information for the specified file'
         else:
-            print('no object found (record)')
+            return False, 'no object found (record)'
     else:
-        print('no object found (recordlist)')
+        return False, 'no object found (recordlist)'
 
 main('http://hdl.handle.net/11259/collection.5782', 'Foto')
