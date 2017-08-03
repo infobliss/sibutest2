@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Image Gallery page{% endblock %}
+{% block head %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+<style>
+div.gallery {
+    margin: 5px;
+    border: 1px solid #ccc;
+    float: left;
+    width: 188px;
+}
+
+div.gallery:hover {
+    border: 1px solid #777;
+}
+
+div.gallery img {
+    width: 100%;
+    height: auto;
+}
+
+div.desc {
+    padding: 15px;
+    text-align: center;
+}
+</style>
+<!--
+<div class="gallery">
+  <a target="_blank" href="http://afbeeldingen.gahetna.nl/naa/thumb/1280x1280/25c6187d-2735-9c85-0e09-b2f447d2710c.jpg">
+    <img src="http://afbeeldingen.gahetna.nl/naa/thumb/1280x1280/25c6187d-2735-9c85-0e09-b2f447d2710c.jpg" alt="Image 1">
+  </a>
+  <div class="desc"><input type="checkbox" name="selected" value="Image"> I want this<br></div>
+</div>
+-->
+<span style="display:inline-block; width: 30px;"></span>
+<form action = "{{ url_for('uploadData') }}" method="post">
+<label>Choose images: </label>
+{% for file in image_list %}
+  <div id="gallery" class="gallery">
+    <a target="_blank" href="{{file}}">
+      <img src={{file}}>
+    </a>
+      <div class="desc"><input type="checkbox" name="selected" value="{{uuid_list[loop.index - 1]}}"> I want this<br></div>
+  </div>
+{% endfor %}
+
+<div id="lower">
+  <center>
+    <input class="btn btn-primary btn-md" type="submit" value="Upload to Commons"/>
+  </center>
+</div><!--/ lower-->
+</form>
+{% endblock %}

@@ -6,7 +6,7 @@ import re
 import sys
 sys.path.append("..")
 from unidecode import unidecode
-
+from xml.dom import minidom
 import json
 import re
 
@@ -16,6 +16,7 @@ except ImportError:
     import urllib2
 
 from libraries.GenericGLAM import GenericGLAM
+from libraries.infobox_templates import photograph_parameters
 
 def extractUUID(url):
     i = -1
@@ -45,20 +46,65 @@ class NationaalArchiefGLAM(GenericGLAM):
             return True
         return False
 
-    def thumbnail_locator(images):
-        [(key, URLvalues)] = images.items()
-        gotThumb = False
-        for image in URLvalues:
-            if '10000x10000' in image['url']:
-                gotThumb = True
-                thumb_url = image['url']
-            if gotThumb == False:
-                # take the first thumb if 10000*10000 thumb don't exist
-                for image in URLvalues:
-                    thumb_url = image['url']
-                    break
+    def get_thumb_url(self, url, image_list):
+    # The function to get the thumbnail url and unique ID of the image
+        uuid_list = []
+        xmlstring = urllib2.urlopen(url).read()
+        xmldoc = minidom.parseString(xmlstring)
+        itemlist = xmldoc.getElementsByTagName('channel')
+        for s in itemlist :
+            filelist = s.getElementsByTagName("item")
+            print('filelist size: %s' % len(filelist))
+            for file in filelist:
+                # license check here
+                license = file.getElementsByTagName("right")
+                link = file.getElementsByTagName("link")[0].firstChild.data
+                link = link.replace('hdl.handle.net/10648', 'www.gahetna.nl/beeldbank-api/zoek')
+                print("=====Link=====")
+                print(link);
+                if self.license_checker(link):
+                    uuid = re.search('([\d\w\-]*)$', link).group(0)
+                    uuid_list.append(uuid)
+                    images = file.getElementsByTagName("ese:isShownBy")
+                    gotimage = False
+                    res_max = 0
+                    for image in images:
+                        res = re.findall(r'(\d+)x\d+/', image.firstChild.data)
+                        if(int(res[0]) > res_max):
+                            res_max = int(res[0])
+                            image_url = image.firstChild.data
+                    image_list.append(image_url)
+                    print(image_url)
+        return uuid_list, image_list
 
-        return thumb_url
+
+    def gallery_builder(self, searchString):
+        nrOfFiles = 0
+        url = 'http://www.gahetna.nl/beeldbank-api/opensearch/?q=' + searchString
+        xmlstring = urllib2.urlopen(url).read()
+        xmldoc = minidom.parseString(xmlstring)
+        itemlist = xmldoc.getElementsByTagName('channel')
+        for s in itemlist :
+            nrOfFiles += int(s.getElementsByTagName("opensearch:totalResults")[0].firstChild.data)
+        print(nrOfFiles)
+        image_list = []
+        return self.get_thumb_url(url, image_list)
+        
+    def license_checker(self, url):
+        try:
+            parsed_json = json.loads(urllib2.urlopen(url).read().decode())
+        except Exception as e:
+            raise ValueError('Bad URL ' + str(e))
+        # find out the license info
+        if parsed_json['doc']['auteursrechten_voorwaarde_Public_Domain']:
+            license = '{{CC-0}}'
+        elif parsed_json['doc']['auteursrechten_voorwaarde_CC_BY']:
+            license = '{{cc-by-4.0}}'
+        elif parsed_json['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
+            license = '{{cc-by-sa-4.0}}'
+        else:
+            license = ''
+        return license
 
     def fill_template(self, uuid, username):
         print('fill_template inside NA_GLAM invoked.')
@@ -79,22 +125,7 @@ class NationaalArchiefGLAM(GenericGLAM):
         # perform the glam specific metadata mapping here
         # and form the dictionary
         print('Mapping began...')
-        mapping = {
-            'depicted_people': '',
-            'depicted_place': '',
-            'dimensions': '',
-            'references': '',
-            'permission': '',
-            'object_history': '',
-            'exhibition_history': '',
-            'credit_line': '',
-            'inscriptions': '',
-            'notes': '',
-            'other_versions': '',
-            'wikidata': '',
-            'camera_coord': ''
-        }
-
+        mapping = photograph_parameters
         creator = parsed_j['doc']['Vervaardiger'][0]
 
         if 'onbekend' in creator.lower():

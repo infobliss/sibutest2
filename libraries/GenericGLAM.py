@@ -52,7 +52,6 @@ class GenericGLAM:
 
     def fill_template(self, parameters):
         print('fill_template inside GenricGLAM invoked, username=' + parameters['username'])     
- 
         '''fill the template based on the values provided by the derived GLAM class'''
         if self.template_type == 'Photograph':
             # Consider that default template is photograph template
@@ -62,9 +61,9 @@ class GenericGLAM:
             wikitext = art_photo_template.format(**parameters)
 
         # upload the file if the permission is ok
-        print('Outside Permission is ' + parameters['permission'])
+        print('Outside license is ' + parameters['license'])
         try:
-            if parameters['permission']:
+            if parameters['license']:
                 wikitext += '== {{int:license-header}} ==\n' + parameters['glam_name'] + '\n' + parameters['license'] + '\n\n'
                 wikitext += parameters['category_text']
                 self.upload_file(parameters['file_location'], wikitext, parameters['filename'], parameters['username'])
