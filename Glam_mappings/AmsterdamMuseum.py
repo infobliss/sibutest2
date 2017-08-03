@@ -1,6 +1,7 @@
 import re
 import json
 import datetime
+import sys
 
 #urllib works different in python 2 and 3 try catch to get the correct one
 try:
@@ -8,8 +9,9 @@ try:
 except ImportError:
     import urllib2
 
+sys.path.append("..")
 import libraries.infobox_templates as wikitemplates
-
+import libraries.gen_lib as library
 
 def load_from_url(url):
     '''
@@ -166,12 +168,14 @@ def parse_reproduction(reproductions):
     quality_order = ['high-end scan', 'digitale opname', 'scan', 'low-res scan', ''] #high to low quality
     for quality in quality_order:
         for reproduction in reproductions:
-            if reproduction['reproduction.type'][0] == quality or quality == '': # if we're at the '' (empty) quality then just go for any reproduction.
-                photographer = reproduction['reproduction.creator'][0]
-                photo_date = reproduction['reproduction.date'][0]
-                #replace the internal url for an external url per https://www.amsterdammuseum.nl/open-data
-                photo_url = 'http://ahm.adlibsoft.com/ahmimages/' + reproduction['reproduction.identifier_URL'][0][27:]
-                return photographer, photo_date, photo_url
+            # if we're at the '' (empty) quality then just go for any reproduction.
+            if 'reproduction.type' in reproduction:
+                if reproduction['reproduction.type'][0] == quality or quality == '':
+                    photographer = reproduction['reproduction.creator'][0]
+                    photo_date = reproduction['reproduction.date'][0]
+                    #replace the internal url for an external url per https://www.amsterdammuseum.nl/open-data
+                    photo_url = 'http://ahm.adlibsoft.com/ahmimages/' + reproduction['reproduction.identifier_URL'][0][27:]
+                    return photographer, photo_date, photo_url
 
 
 def artwork_license(data):
@@ -218,6 +222,22 @@ def artwork_license(data):
                 return '{{PD-old-70}}'
     return False #can't determine a valid license, needs a check after upload.
 
+
+def parse_description(descriptions):
+    '''
+    function to parse descriptions from AM to wikidescription
+    mainly select language template
+    currently just selects the first description (as there is a lot of overlap)
+    '''
+    lang_long = descriptions[0]['AHM.texts.type'][0]['value'][0]
+    language = ''
+    if lang_long[-2:] == 'NL':
+        language = 'nl'
+    if lang_long[-3:] == 'ENG':
+        language = 'en'
+    if language == '':
+        return descriptions[0]['AHM.texts.tekst'][0]
+    return '{{{{{lang}|{text}}}}}'.format(lang=language, text=descriptions[0]['AHM.texts.tekst'][0])
 
 def json_to_wikitemplate(data):
     '''
@@ -269,12 +289,12 @@ def json_to_wikitemplate(data):
         parameters['source'] = 'Collection of the Amsterdam Museum under: ['+ data['persistent_ID'][0] + ' ' + data['priref'][0] + ']'
     if 'production.date.end' in data and 'production.date.start' in data:
         parameters['date'] = parse_date(data['production.date.start'][0], data['production.date.end'][0])
+    if 'AHMteksten' in data:
+        parameters['description'] = parse_description(data['AHMteksten'])
+
     parameters['institution'] = '{{Institution:Amsterdam Museum}}'
 
-    print(parameters)
-    #TODO: parse descriptions
-    #TODO: check license and parse template, maybe make some GLAM specific templates on commons.
-    title = create_title(parameters)
+    title = library.file_title_generator(parameters['title'], data['priref'][0], 'jpg', 'AM', order=[0,1,2])
     return parameters, image_url, title, categories
 
 
@@ -284,8 +304,11 @@ def main(priref, categories=[]):
     if 'recordList' in data['adlibJSON']:
         if 'record' in data['adlibJSON']['recordList']:
             if 'copyright' in data['adlibJSON']['recordList']['record'][0]:
-                infobox_parameters, image_url, title, categories =\
-                    json_to_wikitemplate(data['adlibJSON']['recordList']['record'][0])
+                valid_result = json_to_wikitemplate(data['adlibJSON']['recordList']['record'][0])
+                if valid_result:
+                    infobox_parameters, image_url, title, categories2 = valid_result
+                else:
+                    return valid_result
             else:
                 return False, 'no copyright information for the specified file'
         else:
@@ -293,4 +316,4 @@ def main(priref, categories=[]):
     else:
         return False, 'no object found (recordlist)'
 
-main('http://hdl.handle.net/11259/collection.5782', 'Foto')
+main('http://hdl.handle.net/11259/collection.12', 'Foto')

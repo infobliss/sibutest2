@@ -8,7 +8,7 @@ except ImportError:
     import urllib2
 
 import json
-import unidecode
+from unidecode import unidecode
 
 def load_json_from_url(url):
     #Function to load the json from url and get the parsed json
