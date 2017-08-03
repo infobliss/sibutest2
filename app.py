@@ -7,6 +7,7 @@ import pywikibot
 # from NationaalArchief2 import main
 from glamFullList import listOfGlams
 from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
+from libraries.gen_lib import gallery_builder
 # consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['CONSUMER_SECRET'])
 
 app = flask.Flask(__name__)
@@ -57,38 +58,64 @@ def receiveData():
     pywikibot.config.usernames['commons']['commons'] = username
     pywikibot.Site('commons', 'commons', user=username).login()
     glam1 = flask.request.form['glam_name']
-    id = flask.request.form['uuid']
-    category1 = flask.request.form['categories']
-    categories = [category1]
-    f = flask.request.form
-    for key in f.keys():
-        if 'category' in key:
-            categories.append(flask.request.form[key])
-            print("Multiple categories exist. Appended.")
-    glam_list = listOfGlams
-    print(glam1)
-    try:
-        for glam in glam_list:
-            if glam['name'] == glam1:
-                break
-    except:
-        return "GLAM Not Found in our list"
+    searchstring = flask.request.form['searchstring']
+    if not searchstring:
+        id = flask.request.form['uuid']
+        category1 = flask.request.form['categories']
+        categories = [category1]
+        f = flask.request.form
+        for key in f.keys():
+            if 'category' in key:
+                categories.append(flask.request.form[key])
+                print("Multiple categories exist. Appended.")
+        glam_list = listOfGlams
+        print(glam1)
+        try:
+            for glam in glam_list:
+                if glam['name'] == glam1:
+                    break
+        except:
+            return "Update GLAM List: GLAM Not Found in our list"
 
-    # auth = OAuth1(client_key=consumer_token.key, client_secret=consumer_token.secret, resource_owner_key=flask.session['access_token_key'], resource_owner_secret=flask.session['access_token_secret'])
     # instantiate a proper GLAM class object which in turn instantiates
     # a GenericGLAM class object to form the wikitext
-    if glam1 == 'The Nationaal Archief':
+        if glam1 == 'Nationaal Archief':
+            objNA = NationaalArchiefGLAM('Photograph')
+            print('The NA object has been instantiated.')
+            try:
+                wiki_filename = objNA.fill_template(id, username)
+                wiki_filename_list = [wiki_filename]
+                print('Wiki loc obtained ' + wiki_filename)
+                return flask.render_template('results.html', glam_name = glam1, uuid = id, filenames = wiki_filename_list)
+            except Exception as e:
+                print(str(e))
+                return flask.render_template('error.html', imageId=id)
+        returnString = 'Looks like this glam has not been metadata-mapped yet'
+        return returnString
+    else:
+        if glam1 == 'Nationaal Archief':
+            objNA = NationaalArchiefGLAM('Photograph')
+            uuid_list, image_list = objNA.gallery_builder(searchstring)
+            return flask.render_template('image_gallery.html', uuid_list = uuid_list, image_list = image_list)
+
+@app.route('/results', methods=['POST'])
+def uploadData():
+    username = flask.session.get('username', None)
+    f = flask.request.form
+    wiki_filename_list = []
+    print(f.getlist('selected'))
+    for image_id in f.getlist('selected'):
+        print("UUID of to be uploaded image " + image_id)
         objNA = NationaalArchiefGLAM('Photograph')
         print('The NA object has been instantiated.')
         try:
-            wiki_location = objNA.fill_template(id, username)
-            print('Wiki loc obtained ' + wiki_location)
-            return flask.render_template('results.html', glam_name=glam1, uuid=id, filename=wiki_location)
+            wiki_filename = objNA.fill_template(image_id, username)
+            print('Wiki loc obtained ' + wiki_filename)
+            wiki_filename_list.append(wiki_filename)
         except Exception as e:
             print(str(e))
-            return flask.render_template('error.html', imageId=id)
-    returnString = 'Looks like this glam has not been metadata-mapped yet'
-    return returnString
+            return flask.render_template('error.html')
+    return flask.render_template('results.html', glam_name = '', uuid = '', filenames = wiki_filename_list)
 
 
 @app.route('/oauth-callback')
@@ -98,8 +125,6 @@ def oauth_callback():
     if 'request_token' not in flask.session:
         flask.flash(u'OAuth callback failed. Are cookies disabled?')
         return flask.redirect(flask.url_for('index'))
-
-    # consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['CONSUMER_SECRET'])
 
     try:
         print('URL query string is '+str(flask.request.query_string))
@@ -128,6 +153,10 @@ def help_page():
     """Show the user a help page."""
     return flask.render_template('help.html')
 
+@app.route('/batch')
+def batch_upload():
+    """Show the user a help page."""
+    return flask.render_template('batch.html')
 
 @app.route('/tempo')
 def under_construction():

@@ -56,8 +56,8 @@ photograph_parameters = {
       'photographer': '',
       'title': '',
       'description': '',
-      'depicted people': '',
-      'depicted place': '',
+      'depicted_people': '',
+      'depicted_place': '',
       'date': '',
       'medium': '',
       'dimensions': '',
@@ -74,7 +74,7 @@ photograph_parameters = {
       'permission': '',
       'other_versions': '',
       'wikidata': '',
-      'camera coord': ''
+      'camera_coord': ''
  }
 
 photograph_template = '''\
