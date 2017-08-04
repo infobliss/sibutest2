@@ -10,15 +10,13 @@ except ImportError:
 import json
 from unidecode import unidecode
 
+
 def load_json_from_url(url):
     #Function to load the json from url and get the parsed json
     try:
-        jstring=urllib2.urlopen(url).read()
-    except:
-        return 1, ""
-    parsed_json = json.loads(jstring)
-    return 0, parsed_json
-
+        return json.loads(urllib2.urlopen(url).read().decode())
+    except Exception as e:
+        raise ValueError('Bad URL given ' + e)
 
 def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_rawlength=90, order=[0,2,1], separator=' - '):
     '''

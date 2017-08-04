@@ -37,14 +37,6 @@
             margin: 0 auto;
             margin-top: 20px;
         }
-        label {
-            color: #286090;
-            display: inline-block;
-            margin-left: 18px;
-            padding-top: 10px;
-            font-size: 16px;
-        }
-      
         input {
             font-family: "Helvetica Neue", Helvetica, sans-serif;
             font-size: 12px;
@@ -77,34 +69,8 @@
             box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #e6f2f9;
         }
 
-       #customtext {
-            background: #ecf2f5;
-            width: 100%;
-            font-family: "Lato", sans-serif;
-            font-size: 20px;
-            color: #286090;
-            padding-left: 25px;
-            margin-top: 20px;
-            border-top: 2px solid #ccc;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;
-       }
-       .rightside { float:right }
-
-       #lower {
-            background: #ecf2f5;
-            width: 100%;
-            height: 60px;
-            display: flex;  
-            align-items: center;
-            justify-content: center;
-            }
-           /* margin-top: 20px;
-            box-shadow: inset 0 1px 1px #fff;
-            border-top: 1px solid #ccc;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;*/
        
+       .rightside { float:right }
         
         #dropdown{
             padding-left: 10px;
@@ -112,35 +78,17 @@
             width:550px;   
             text-align-last:center;
         }
-       /* input[type=submit] {
-            /*float: right;
-            margin: 0 auto;
-            margin-right: 20px;
-            margin-top: 20px;
-            width: 230px;
-            height: 30px;
-            font-size: 14px;
-            font-weight: bold;
-            color: #fff;
-            background-color: #286090; /*IE fallback
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#acd6ef), to(#6ec2e8));
-            background-image: -moz-linear-gradient(top left 90deg, #acd6ef 0%, #6ec2e8 100%);
-            background-image: linear-gradient(top left 90deg, #acd6ef 0%, #6ec2e8 100%);
-            border-radius: 30px;
-            border: 1px solid #66add6;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, .3), inset 0 1px 0 rgba(255, 255, 255, .5);
-            cursor: pointer;
-        }
-        input[type=submit]:hover {
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#b6e2ff), to(#6ec2e8));
-            background-image: -moz-linear-gradient(top left 90deg, #b6e2ff 0%, #6ec2e8 100%);
-            background-image: linear-gradient(top left 90deg, #b6e2ff 0%, #6ec2e8 100%);
-        }
-        input[type=submit]:active {
-            background-image: -webkit-gradient(linear, left top, left bottom, from(#6ec2e8), to(#b6e2ff));
-            background-image: -moz-linear-gradient(top left 90deg, #6ec2e8 0%, #b6e2ff 100%);
-            background-image: linear-gradient(top left 90deg, #6ec2e8 0%, #b6e2ff 100%);
-        }*/
+
+        select .ct { padding-left: 10px; text-align-last:center; }
+
+        p { color: #286090; }
+
+        h5 {
+            color: #286090; width:100%; padding-left: 10px; border-bottom: 1px solid #000; 
+            line-height:0.1em; margin:10px 0 20px; 
+        } 
+        h5 span { background:#fff; padding:0 10px; }
+       
     </style>
     {% if username %}
      <div id=customtext>
@@ -153,15 +101,17 @@
          <form action = "{{ url_for('receiveData') }}" method="post">
                
               <label>Enter details: </label>
-               
+
               <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
-                   <option value="" selected="selected" disabled>-- Choose GLAM --</option> 
-                   <option value="The Nationaal Archief">Nationaal Archief</option>
-                   <option value="The British Museum">British Museum</option>
+                   <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
+                   <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
+                   <option class="ct" value="British Museum">British Museum</option>
                  </select>
               </p>
               <div id="result"></div> 
-              <p><input type="text" name='uuid' required  placeholder="Unique ID of image (Click on Help button if in doubt)"></p>
+              <p><input type="text" name='searchstring' placeholder="Enter searchstring (for multiple image upload)"></p>
+              <h5><span>For Uploading single image enter the Unique ID of the image</span></h5> 
+              <p><input type="text" name='uuid'  placeholder="Unique ID of image (ignored if searchstring is given)"></p>
               <div id="sampleUrl"></div>
               <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
               <p>&nbsp;&nbsp;More category?&nbsp;
@@ -171,11 +121,11 @@
               <script type="text/javascript">
                   function dropdownTip(value){
                       switch(value) {
-                        case "The Nationaal Archief": 
+                        case "Nationaal Archief": 
                           document.getElementById("result").innerHTML = '<p>The national archive of the Netherlands, located in The Hague</p>';
                           document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: http://proxy.handle.net/10648/a9deaf60-d0b4-102d-bcf8-003048976d84</p><p>Sample Unique ID: a9deaf60-d0b4-102d-bcf8-003048976d84';
                           break;
-                        case "The British Museum":
+                        case "British Museum":
                           document.getElementById("result").innerHTML = '<p>The British museum is located in the Bloomsbury area of London</p>';
                           document.getElementById("sampleUrl").innerHTML = '<p>The British museum is not metadata mapped yet</p>';
                           break;

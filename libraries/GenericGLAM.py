@@ -13,21 +13,32 @@ class GenericGLAM:
         self.template_type = template_type
         print("GenericGLAM __init__() called with " + template_type)
 
-    def license_checker(mapping):
+    def license_checker(url):
+        '''
+        Function to check the license of a given image
+
+        returns False if the license is not a comaptible one
+        else return True
+        '''
         return False
 
     def thumbnail_locator(images):
+        '''
+        Function to get the thumbnail url and unique ID of the image
+
+        returns uuid_list, image_list which are the lists of Unique IDs
+        and thumbail URLs respectively
+        returns None by default
+        '''
         return None
 
-    def upload_file(self, file_location, description, filename, username):
+    def upload_file(self, file_location, description, filename, username, glam_name):
         '''
         Given a description, file_location and filename this function uploads the file at the file location
         using the description using the filename given as filename on Commons.
         '''
         print('inside upload_file() username=' + username)
         print('file location is ' + file_location)
-        #urls = [file_location]
-        #bot = UploadRobot(urls, description=description, useFilename=filename, keepFilename=True, verifyDescription=False, aborts=True) # , uploadByUrl=True
         local_filepath, headers = urllib.request.urlretrieve(file_location)
         wiki_file_location = 'File:' + filename
         print('Wiki file location and local path are ' + wiki_file_location + local_filepath)
@@ -39,7 +50,7 @@ class GenericGLAM:
             try:
                 print('Inside try block...')   
                 if not site.upload(
-                    page, source_filename=local_filepath, comment='Uploaded from NA GLAM', text=description
+                    page, source_filename = local_filepath, comment = 'Uploaded from' + glam_name + "with g2c tool", text = description
                 ):
                     print('Upload failed!')
             except pywikibot.data.api.APIError:
@@ -66,7 +77,7 @@ class GenericGLAM:
             if parameters['license']:
                 wikitext += '== {{int:license-header}} ==\n' + parameters['glam_name'] + '\n' + parameters['license'] + '\n\n'
                 wikitext += parameters['category_text']
-                self.upload_file(parameters['file_location'], wikitext, parameters['filename'], parameters['username'])
+                self.upload_file(parameters['file_location'], wikitext, parameters['filename'], parameters['username'], parameters['glam_name'])
                 print('upload_file() called from GenericGLAM')
         except Exception as e:
             print(e)

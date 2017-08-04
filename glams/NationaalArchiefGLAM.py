@@ -39,12 +39,6 @@ class NationaalArchiefGLAM(GenericGLAM):
         # For NA Glam 'Photograph' infobox type applies to all the images
         return 'Photograph', parsed_j
 
-    def license_checker(mapping):
-        if(mapping['license'] == '{{CC-0}}'
-            or mapping['license'] == '{{cc-by-4.0}}'
-            or mapping['license'] == '{{cc-by-sa-4.0}}'): 
-            return True
-        return False
 
     def get_thumb_url(self, url, image_list):
     # The function to get the thumbnail url and unique ID of the image
@@ -97,14 +91,14 @@ class NationaalArchiefGLAM(GenericGLAM):
             raise ValueError('Bad URL ' + str(e))
         # find out the license info
         if parsed_json['doc']['auteursrechten_voorwaarde_Public_Domain']:
-            license = '{{CC-0}}'
+            return True
         elif parsed_json['doc']['auteursrechten_voorwaarde_CC_BY']:
-            license = '{{cc-by-4.0}}'
+            return True
         elif parsed_json['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
-            license = '{{cc-by-sa-4.0}}'
+            return True
         else:
-            license = ''
-        return license
+            return False
+        return False
 
     def fill_template(self, uuid, username):
         print('fill_template inside NA_GLAM invoked.')
