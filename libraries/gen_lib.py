@@ -44,3 +44,25 @@ def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_
     
     return filetitle
 
+def page_generator(infobox, categories, wikilicense='', license_in_infobox=False):
+    '''
+    This function expects a filled infobox, a license-template and a set of categories and forms this into a
+    wikitext image_description.
+    if License_in_infobox=True than the license is in the infobox and no license is givens
+    '''
+    pagetemplate = '''\
+=={{{{int:filedesc}}}}==
+{infobox}{wikilicense}
+{categories}'''
+    license_template = '''
+
+=={{{{int:license-header}}}}==
+{wikilicense}'''
+    parsed_categories = ''
+    for category in categories:
+        parsed_categories += '\n[[Category:{category}]]'.format(category=category)
+    if license_in_infobox:
+        license_text=''
+    else:
+        license_text = license_template.format(wikilicense=wikilicense)
+    return pagetemplate.format(infobox=infobox, wikilicense=license_text,categories=parsed_categories)

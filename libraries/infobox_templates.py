@@ -49,8 +49,7 @@ art_photo_template = '''\
  |source             = {source}
  |photo license      = {photo_license}
  |other_versions     = {other_versions}
-}}}}
-'''
+}}}}'''
 
 photograph_parameters = {
       'photographer': '',
@@ -101,6 +100,4 @@ photograph_template = '''\
  |other versions     = {other_versions}
  |wikidata           = {wikidata}
  |camera coord       = {camera_coord}
-
-}}}}
-'''
+}}}}'''

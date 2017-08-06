@@ -5,7 +5,6 @@ import sys
 sys.path.append("..")
 import urllib.request
 import pywikibot
-from pywikibot.specialbots import UploadRobot
 
 
 class GenericGLAM:
@@ -13,21 +12,20 @@ class GenericGLAM:
         self.template_type = template_type
         print("GenericGLAM __init__() called with " + template_type)
 
-    def license_checker(url):
+    def license_checker(self):
         '''
         Function to check the license of a given image
 
-        returns False if the license is not a comaptible one
+        returns False if the license is not a compatible one
         else return True
         '''
         return False
 
-    def thumbnail_locator(images):
+    def get_thumbnail(self):
         '''
-        Function to get the thumbnail url and unique ID of the image
+        Function to get a thumbnail for the image.
 
-        returns uuid_list, image_list which are the lists of Unique IDs
-        and thumbail URLs respectively
+        returns a thumbnail_url
         returns None by default
         '''
         return None
