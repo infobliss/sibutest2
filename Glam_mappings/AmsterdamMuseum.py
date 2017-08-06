@@ -355,3 +355,21 @@ class AmsterdamMuseum(GenericGLAM):
 
         self.parameters['institution'] = '{{Institution:Amsterdam Museum}}'
         return True
+
+def search_to_identifiers(searchterm):
+    ids = []
+    searchstring = 'http://amdata.adlibsoft.com/wwwopac.ashx?database=AMcollect&q={search}&limit=100&output=json'.format(search=searchterm)
+    results = library.load_json_from_url(searchstring)
+    nr_of_results = int(results['adlibJSON']['diagnostic']['hits'])
+    if nr_of_results == 0:
+        return ids  # no results
+    elif nr_of_results < 101:
+        records = results['adlibJSON']['recordList']['record']
+        for record in records:
+            ids.append(record['priref'])
+    else:
+        #TODO: build a loop supporting looping to the next pages of results
+        records = results['adlibJSON']['recordList']['record']
+        for record in records:
+            ids.append(record['priref'])
+    return ids

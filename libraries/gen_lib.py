@@ -18,6 +18,16 @@ def load_json_from_url(url):
     except Exception as e:
         raise ValueError('Bad URL given ' + e)
 
+def load_from_url(self):
+        """
+        Function which loads and parses the json from the database url.
+        Input is url with json, output is dictionary with the structure from the json
+        """
+        #TODO: Make this code work in both python2 and 3, now it works locally in 3 and the py2 code is in nationaalarchief
+        jstring=urllib2.urlopen(self.url).read().decode('utf-8')
+        parsed_json = json.loads(jstring)
+        return parsed_json
+
 def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_rawlength=90, order=[0,2,1], separator=' - '):
     '''
     Function to generate a standard title for the image to be uploaded
