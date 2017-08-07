@@ -76,3 +76,30 @@ def page_generator(infobox, categories, wikilicense='', license_in_infobox=False
     else:
         license_text = license_template.format(wikilicense=wikilicense)
     return pagetemplate.format(infobox=infobox, wikilicense=license_text,categories=parsed_categories)
+
+def upload_file(file_location, description, filename, username, glam_name):
+    '''
+    Given a description, file_location and filename this function uploads the file at the file location
+    using the description as wikitext and using the filename given as filename on Commons.
+    '''
+    print('inside upload_file() username=' + username)
+    print('file location is ' + file_location)
+    local_filepath, headers = urllib.request.urlretrieve(file_location)
+    wiki_file_location = 'File:' + filename
+    print('Wiki file location and local path are ' + wiki_file_location + local_filepath)
+    site = pywikibot.Site('commons', 'commons', user=username)
+    page = pywikibot.FilePage(site, wiki_file_location)
+    if page.exists():
+        print('Exists')
+    else:
+        try:
+            print('Inside try block...')   
+            if not site.upload(
+                page, source_filename = local_filepath, comment = 'Uploaded from' + glam_name + "with g2c tool", text = description
+            ):
+                print('Upload failed!')
+        except pywikibot.data.api.APIError:
+            # recheck
+            site.loadpageinfo(page)
+            if not page.exists():
+                raise    

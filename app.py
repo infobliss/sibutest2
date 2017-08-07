@@ -4,11 +4,10 @@ import os
 import yaml
 from requests_oauthlib import OAuth1
 import pywikibot
-# from NationaalArchief2 import main
 from glamFullList import listOfGlams
 from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
-from libraries.gen_lib import gallery_builder
-# consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['CONSUMER_SECRET'])
+from glams.AmsterdamMuseumGLAM import AmsterdamMuseumGLAM
+from libraries.gen_lib import upload_file
 
 app = flask.Flask(__name__)
 
@@ -59,8 +58,10 @@ def receiveData():
     pywikibot.Site('commons', 'commons', user=username).login()
     glam1 = flask.request.form['glam_name']
     searchstring = flask.request.form['searchstring']
-    if not searchstring:
-        id = flask.request.form['uuid']
+    id = flask.request.form['uuid']
+    if not (searchstring or id):
+        return flask.render_template('index.html', username=username)
+    elif not searchstring:
         category1 = flask.request.form['categories']
         categories = [category1]
         f = flask.request.form
@@ -84,22 +85,33 @@ def receiveData():
             print('The NA object has been instantiated.')
             try:
                 wiki_filename = objNA.fill_template(id, username)
-                wiki_filename_list = [wiki_filename]
                 print('Wiki loc obtained ' + wiki_filename)
-                return flask.render_template('results.html', glam_name = glam1, uuid = id, filenames = wiki_filename_list)
+                return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
             except Exception as e:
                 print(str(e))
                 return flask.render_template('error.html', imageId=id)
-        returnString = 'Looks like this glam has not been metadata-mapped yet'
-        return returnString
+
+        elif glam1 == 'Amsterdam Museum':
+            objAM = AmsterdamMuseumGLAM(id)
+            print('The AM object has been instantiated.')
+            if not objAM == None:
+                image_loc = objAM.get_thumbnail(1268)
+                wiki_filename, wikitext, image_url = objAM.generate_image_information(categories)
+                upload_file(image_url, wikitext, wiki_filename, username, glam1)
+                return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
+            else:
+                return flask.render_template('error.html', imageId=id)
+
     else:
         if glam1 == 'Nationaal Archief':
             objNA = NationaalArchiefGLAM('Photograph')
             uuid_list, image_list = objNA.gallery_builder(searchstring)
             return flask.render_template('image_gallery.html', uuid_list = uuid_list, image_list = image_list)
+        else
+            return "Work in progress. Multiple Upload works for NA GLAM only."
 
-@app.route('/results', methods=['POST'])
-def uploadData():
+@app.route('/multiUpload', methods=['POST'])
+def multiUpload():
     username = flask.session.get('username', None)
     f = flask.request.form
     wiki_filename_list = []
@@ -115,7 +127,7 @@ def uploadData():
         except Exception as e:
             print(str(e))
             return flask.render_template('error.html')
-    return flask.render_template('results.html', glam_name = '', uuid = '', filenames = wiki_filename_list)
+    return flask.render_template('results.html', uuid = '', username = username, filenames = wiki_filename_list)
 
 
 @app.route('/oauth-callback')
