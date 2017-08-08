@@ -16,21 +16,30 @@ from libraries.GenericGLAM import GenericGLAM
 
 
 class AmsterdamMuseumGLAM(GenericGLAM):
+    
     def __init__(self, priref):
         """
         initializer which should receive a priref or url with priref (unique identifier for an object/image)
         """
+        print('Inside __init__() of AMGLAM')
+        
         self.url=self.priref_to_url(priref)
+        print(self.url)
         if self.url is False:
-            return False # Not a correctly formatted identifier
+            return None # Not a correctly formatted identifier
         self.data = self.load_from_url()
         if not self.parse_data():  # self.parse_data() changes the self.data object if there is data on the object
-            return False # can't find any data on the object
+            return None # can't find any data on the object
+        print(self.license_checker())
         if not self.license_checker():
-            return False # no valid license
+            return None # no valid license
+        print("Outside of None block.")
         self.parameters=wikitemplates.art_photo_parameters
+        print("Parameters appended.")
         self.image_url = None
-        self.categories = ['Images from the Amsterdam Museum']
+        self.categories = []
+        self.categories.append('Images from the Amsterdam Museum')
+        print("Categoris appended.")
         self.title = None
 
     def generate_image_information(self, categories=[]):
@@ -82,11 +91,13 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         validates whether the returned data contains an object/record.
         If this is not the case the object/identifier is not in the (public) database
         """
+        print(self.data)
         if not 'recordList' in self.data['adlibJSON']:
             return False  # no recordlist found (identifier doesn't exist)
         if not 'record' in self.data['adlibJSON']['recordList']:
             return False  # no record found (identifier doesn't exist)
         self.data = self.data['adlibJSON']['recordList']['record'][0]
+        print("Parse_data finished")
         return True
 
     def license_checker(self):
@@ -166,7 +177,7 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         size_str += '|' + unit
         for dimension in dimensions:
             if dimension['dimension.type'][0] in types:
-                size_str += '|' + types[dimension['dimension.type'][0]] + '|' + dimension['dimension.value'][0]
+                size_str += '|' + types[dimension['dimension.type'][0]] + '=' + dimension['dimension.value'][0]
             else:
                 size_str += '|' + dimension['dimension.value'][0]
         size_str += '}}'
@@ -285,7 +296,7 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         if known_author:
             if 'production.date.end' in data:
                 date = data['production.date.end'][0]
-                if date < (currentyear-150):
+                if int(date) < (currentyear-150):
                     # if the work was created more than 150 years ago we assume the author died more than 70 years ago.
                     return '{{PD-old-70}}'
         return False  # can't determine a valid license, needs a check after upload.
@@ -314,6 +325,7 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         The function then gets the parameters for the art photo infobox template and maps the values from the
         glams data into these parameters.
         """
+        self.parameters['medium'] = ''
         self.parameters['photo_license'] = '{{PD-because|Released into the Public Domain by the copyright holder, the Amsterdam Museum}}'
         wiki_license = self.artwork_license(data)
         if wiki_license:
@@ -356,21 +368,23 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         self.parameters['institution'] = '{{Institution:Amsterdam Museum}}'
         return True
 
-def search_to_identifiers(searchterm):
-    ids = []
-    searchstring = 'http://amdata.adlibsoft.com/wwwopac.ashx?database=AMcollect&q={search}&limit=100&output=json'.format(search=searchterm)
-    results = library.load_json_from_url(searchstring)
-    nr_of_results = int(results['adlibJSON']['diagnostic']['hits'])
-    if nr_of_results == 0:
-        return ids  # no results
-    elif nr_of_results < 101:
-        records = results['adlibJSON']['recordList']['record']
-        for record in records:
-            ids.append(record['priref'])
-    else:
-        # TODO: build a loop supporting looping to the next pages of results
-        records = results['adlibJSON']['recordList']['record']
-        for record in records:
-            ids.append(record['priref'])
-    return ids
+    @classmethod
+    def search_to_identifiers(cls, searchterm):
+        ids = []
+        searchstring = 'http://amdata.adlibsoft.com/wwwopac.ashx?database=AMcollect&q={search}&limit=100&output=json'.format(search=searchterm)
+        results = library.load_json_from_url(searchstring)
+        nr_of_results = int(results['adlibJSON']['diagnostic']['hits'])
+        if nr_of_results == 0:
+            return ids  # no results
+        elif nr_of_results < 101:
+            records = results['adlibJSON']['recordList']['record']
+            for record in records:
+                ids.append(record['priref'])
+        else:
+            # TODO: build a loop supporting looping to the next pages of results
+            records = results['adlibJSON']['recordList']['record']
+            for record in records:
+                ids.append(record['priref'])
+        print(ids)
+        return ids
 

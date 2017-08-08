@@ -7,6 +7,8 @@ try:
 except ImportError:
     import urllib2
 
+import urllib.request
+import pywikibot
 import json
 from unidecode import unidecode
 
@@ -95,7 +97,7 @@ def upload_file(file_location, description, filename, username, glam_name):
         try:
             print('Inside try block...')   
             if not site.upload(
-                page, source_filename = local_filepath, comment = 'Uploaded from' + glam_name + "with g2c tool", text = description
+                page, source_filename = local_filepath, comment = 'Uploaded from ' + glam_name + " with g2c tool", text = description
             ):
                 print('Upload failed!')
         except pywikibot.data.api.APIError:

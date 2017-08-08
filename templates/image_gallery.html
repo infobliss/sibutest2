@@ -8,10 +8,12 @@
 {% block content %}
 <style>
 div.gallery {
-    margin: 5px;
+    position: relative;
+    margin: 3px;
     border: 1px solid #ccc;
     float: left;
-    width: 188px;
+    height: 100px;
+    width: auto;
 }
 
 div.gallery:hover {
@@ -19,12 +21,13 @@ div.gallery:hover {
 }
 
 div.gallery img {
-    width: 100%;
-    height: auto;
+    width: auto;
+    height: 100%;
 }
 
 div.desc {
-    padding: 15px;
+    position: absolute;
+    padding: 10px;
     text-align: center;
 }
 </style>
@@ -37,16 +40,29 @@ div.desc {
 </div>
 -->
 <span style="display:inline-block; width: 30px;"></span>
-<form action = "{{ url_for('uploadData') }}" method="post">
-<label>Choose images: </label>
-{% for file in image_list %}
+
+<form action = "{{ url_for('multiUpload', glam = glam_name) }}" method="post">
+{% if glam_name == 'NA' %}
+  {% for file in image_list %}
   <div id="gallery" class="gallery">
     <a target="_blank" href="{{file}}">
       <img src={{file}}>
     </a>
-      <div class="desc"><input type="checkbox" name="selected" value="{{uuid_list[loop.index - 1]}}"> I want this<br></div>
+      <div class="desc"><input type="checkbox" name="selected" value="{{uuid_list[loop.index - 1]}}"> Include<br></div>
   </div>
-{% endfor %}
+  {% endfor %}
+{% endif %}
+
+{% if glam_name == 'AM' %}
+  {% for file in image_list %}
+    <div id="gallery" class="gallery">
+      <a target="_blank" href="{{file}}">
+        <img src={{file}}>
+      </a>
+        <div class="desc"><input type="checkbox" name="selected" value="{{file}}"> Include<br></div>
+    </div>
+  {% endfor %}
+{% endif %}
 
 <div id="lower">
   <center>

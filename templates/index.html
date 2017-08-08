@@ -105,13 +105,13 @@
               <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
                    <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
                    <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
-                   <option class="ct" value="British Museum">British Museum</option>
+                   <option class="ct" value="Amsterdam Museum">Amsterdam Museum</option>
                  </select>
               </p>
               <div id="result"></div> 
               <p><input type="text" name='searchstring' placeholder="Enter searchstring (for multiple image upload)"></p>
-              <h5><span>For Uploading single image enter the Unique ID of the image</span></h5> 
-              <p><input type="text" name='uuid'  placeholder="Unique ID of image (ignored if searchstring is given)"></p>
+              <h5><span>For Uploading single image enter the URL/Unique ID of the image</span></h5> 
+              <p><input type="text" name='uuid'  placeholder="URL/Unique ID of image (ignored if searchstring is given)"></p>
               <div id="sampleUrl"></div>
               <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
               <p>&nbsp;&nbsp;More category?&nbsp;
@@ -125,9 +125,9 @@
                           document.getElementById("result").innerHTML = '<p>The national archive of the Netherlands, located in The Hague</p>';
                           document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: http://proxy.handle.net/10648/a9deaf60-d0b4-102d-bcf8-003048976d84</p><p>Sample Unique ID: a9deaf60-d0b4-102d-bcf8-003048976d84';
                           break;
-                        case "British Museum":
-                          document.getElementById("result").innerHTML = '<p>The British museum is located in the Bloomsbury area of London</p>';
-                          document.getElementById("sampleUrl").innerHTML = '<p>The British museum is not metadata mapped yet</p>';
+                        case "Amsterdam Museum":
+                          document.getElementById("result").innerHTML = '<p>The Amsterdam Museum is a museum about the history of Amsterdam</p>';
+                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: http://hdl.handle.net/11259/collection.5782</p>';
                           break;
                         default:
                           document.getElementById("result").innerHTML = '<p>'+value+'</p>';

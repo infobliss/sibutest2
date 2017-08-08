@@ -59,11 +59,11 @@ def receiveData():
     glam1 = flask.request.form['glam_name']
     searchstring = flask.request.form['searchstring']
     id = flask.request.form['uuid']
+    category1 = flask.request.form['categories']
+    categories = [category1]
     if not (searchstring or id):
         return flask.render_template('index.html', username=username)
-    elif not searchstring:
-        category1 = flask.request.form['categories']
-        categories = [category1]
+    elif not searchstring:      # if searchstring is empty
         f = flask.request.form
         for key in f.keys():
             if 'category' in key:
@@ -84,7 +84,7 @@ def receiveData():
             objNA = NationaalArchiefGLAM('Photograph')
             print('The NA object has been instantiated.')
             try:
-                wiki_filename = objNA.fill_template(id, username)
+                wiki_filename = objNA.fill_template(id, username, categories)
                 print('Wiki loc obtained ' + wiki_filename)
                 return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
             except Exception as e:
@@ -103,30 +103,49 @@ def receiveData():
                 return flask.render_template('error.html', imageId=id)
 
     else:
+        # store the categories in the session to be accessed in /multiUpload
+        if categories:
+            flask.session['categories'] = categories
         if glam1 == 'Nationaal Archief':
             objNA = NationaalArchiefGLAM('Photograph')
             uuid_list, image_list = objNA.gallery_builder(searchstring)
-            return flask.render_template('image_gallery.html', uuid_list = uuid_list, image_list = image_list)
-        else
-            return "Work in progress. Multiple Upload works for NA GLAM only."
+            return flask.render_template('image_gallery.html', glam_name = 'NA', uuid_list = uuid_list, image_list = image_list)
+        elif glam1 == 'Amsterdam Museum':
+            ids = AmsterdamMuseumGLAM.search_to_identifiers(searchstring)
+            image_list = []
+            for id in ids:
+                print(str(id[0]))
+                objAM = AmsterdamMuseumGLAM(str(id[0]))
+                if not objAM == None:
+                    image_loc = objAM.get_thumbnail(188)
+                    image_list.append(image_loc)
+            return flask.render_template('image_gallery.html', glam_name = 'AM', image_list = image_list)
+
 
 @app.route('/multiUpload', methods=['POST'])
 def multiUpload():
+    glam_name = flask.request.args.get('glam', None)
+    categories = flask.session.get('categories')
     username = flask.session.get('username', None)
     f = flask.request.form
     wiki_filename_list = []
     print(f.getlist('selected'))
-    for image_id in f.getlist('selected'):
-        print("UUID of to be uploaded image " + image_id)
-        objNA = NationaalArchiefGLAM('Photograph')
-        print('The NA object has been instantiated.')
-        try:
-            wiki_filename = objNA.fill_template(image_id, username)
-            print('Wiki loc obtained ' + wiki_filename)
-            wiki_filename_list.append(wiki_filename)
-        except Exception as e:
-            print(str(e))
-            return flask.render_template('error.html')
+    if glam_name == 'NA':
+        for image_id in f.getlist('selected'):
+            print("UUID of to be uploaded image " + image_id)
+            objNA = NationaalArchiefGLAM('Photograph')
+            print('The NA object has been instantiated.')
+            try:
+                wiki_filename = objNA.fill_template(image_id, username, categories)
+                print('Wiki loc obtained ' + wiki_filename)
+                wiki_filename_list.append(wiki_filename)
+            except Exception as e:
+                print(str(e))
+                return flask.render_template('error.html')
+    elif glam_name == 'AM':
+        for image_loc in f.getlist('selected'):
+            # TODO: Obtain the wikitext, wiki_filename from the corresponding AM objects
+            upload_file(image_url, wikitext, wiki_filename, username, glam_name)
     return flask.render_template('results.html', uuid = '', username = username, filenames = wiki_filename_list)
 
 

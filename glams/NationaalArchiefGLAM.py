@@ -17,6 +17,8 @@ except ImportError:
 
 from libraries.GenericGLAM import GenericGLAM
 from libraries.infobox_templates import photograph_parameters
+from libraries.gen_lib import load_json_from_url
+
 
 def extractUUID(url):
     i = -1
@@ -40,9 +42,9 @@ class NationaalArchiefGLAM(GenericGLAM):
         return 'Photograph', parsed_j
 
 
-    def get_thumb_url(self, url, image_list):
-    # The function to get the thumbnail url and unique ID of the image
+    def get_thumb_url(self, url):
         uuid_list = []
+        image_list = []
         xmlstring = urllib2.urlopen(url).read()
         xmldoc = minidom.parseString(xmlstring)
         itemlist = xmldoc.getElementsByTagName('channel')
@@ -61,11 +63,11 @@ class NationaalArchiefGLAM(GenericGLAM):
                     uuid_list.append(uuid)
                     images = file.getElementsByTagName("ese:isShownBy")
                     gotimage = False
-                    res_max = 0
+                    res_min = 20000
                     for image in images:
                         res = re.findall(r'(\d+)x\d+/', image.firstChild.data)
-                        if(int(res[0]) > res_max):
-                            res_max = int(res[0])
+                        if(int(res[0]) < res_min):
+                            res_min = int(res[0])
                             image_url = image.firstChild.data
                     image_list.append(image_url)
                     print(image_url)
@@ -74,6 +76,7 @@ class NationaalArchiefGLAM(GenericGLAM):
 
     def gallery_builder(self, searchString):
         nrOfFiles = 0
+        searchString = searchString.replace(" ", "+")
         url = 'http://www.gahetna.nl/beeldbank-api/opensearch/?q=' + searchString
         xmlstring = urllib2.urlopen(url).read()
         xmldoc = minidom.parseString(xmlstring)
@@ -81,12 +84,11 @@ class NationaalArchiefGLAM(GenericGLAM):
         for s in itemlist :
             nrOfFiles += int(s.getElementsByTagName("opensearch:totalResults")[0].firstChild.data)
         print(nrOfFiles)
-        image_list = []
-        return self.get_thumb_url(url, image_list)
+        return self.get_thumb_url(url)
         
     def license_checker(self, url):
         try:
-            parsed_json = json.loads(urllib2.urlopen(url).read().decode())
+            parsed_json = load_json_from_url(url)
         except Exception as e:
             raise ValueError('Bad URL ' + str(e))
         # find out the license info
@@ -100,7 +102,7 @@ class NationaalArchiefGLAM(GenericGLAM):
             return False
         return False
 
-    def fill_template(self, uuid, username):
+    def fill_template(self, uuid, username, categories):
         print('fill_template inside NA_GLAM invoked.')
         # Form the url if (glam + uuid) is given
         if uuid.startswith('http://proxy.handle.net/10648/'):
@@ -111,10 +113,6 @@ class NationaalArchiefGLAM(GenericGLAM):
             infobox_type, parsed_j = self.choose_correct_template(url)
         except Exception as e:
             raise ValueError('Incorrect URL given: ' + e)  # FIXME: raise, don't print
-
-        # TODO: form the url if (glam + uid) is given
-
-       
 
         # perform the glam specific metadata mapping here
         # and form the dictionary
@@ -181,8 +179,9 @@ class NationaalArchiefGLAM(GenericGLAM):
         mapping['glam_name'] = 'Nationaal Archief'
 
         # TODO: Solve category redirects?
-        categories = ['[[Category:Images from the '
-                      'Nationaal Archief needing categories]]']
+        if not categories:
+            categories.append('[[Category:Images from the '
+                      'Nationaal Archief needing categories]]')
         if '{{unknown' not in photographer.lower():
             categories.append(
                 '[[Category:Photographs by {}]]'.format(photographer))
