@@ -9,7 +9,8 @@ from unidecode import unidecode
 from xml.dom import minidom
 import json
 import re
-
+import libraries.gen_lib as library
+import libraries.infobox_templates as wikitemplates
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -17,108 +18,100 @@ except ImportError:
 
 from libraries.GenericGLAM import GenericGLAM
 from libraries.infobox_templates import photograph_parameters
-from libraries.gen_lib import load_json_from_url
+from libraries.gen_lib import load_from_url
 
-
-def extractUUID(url):
-    i = -1
-    while not url[i] == '/':
-        i = i-1
-    uuid = url[i+1:len(url)]
-    return uuid
 
 class NationaalArchiefGLAM(GenericGLAM):
     glam_name = 'Nationaal Archief'
 
-    def __init__(self, infobox_type):
-        print('hello from NA subclass __init__')
-        super(NationaalArchiefGLAM, self).__init__(infobox_type)
+    def __init__(self, id):
+        """
+        initializer which should receive an image identifier or url (unique identifier for an object/image)
+        """
+        self.uuid = self.extractUUID(id)
+        self.url = 'http://www.gahetna.nl/beeldbank-api/zoek/{uuid}'.format(uuid=self.uuid)
+        self.data = load_from_url(self.url)
+        self.parameters=wikitemplates.photograph_parameters
+        if not self.license_checker():
+            return None # no valid license
+        self.image_url = None
+        self.categories = []
+        self.categories.append('Images from Nationaal Archief')
+        self.title = None
 
-    def choose_correct_template(self, url):
-        print("Url from choose_correct_template() " + url)
-        parsed_j = json.loads(urllib2.urlopen(url).read().decode())
+    def extractUUID(self, id):
+        """
+        Function to extract the identifier from a given URL
+        id : the identifier or the URL for an image (e.g., http://proxy.handle.net/10648/a9946ea0-d0b4-102d-bcf8-003048976d84)
+        returns the identifier of the image (e.g., a9946ea0-d0b4-102d-bcf8-003048976d84)
+        """
+        uuid = id
+        if uuid.startswith('http://proxy.handle.net/10648/'):
+            i = -1
+            while not uuid[i] == '/':
+                i = i-1
+            uuid = uuid[i+1:len(url)]
+        return uuid
 
-        # For NA Glam 'Photograph' infobox type applies to all the images
-        return 'Photograph', parsed_j
+    def generate_image_information(self, categories=[]):
+        """
+        Main function to generate all the image information for an upload.
+        Categories (as specified by uploader can be send) to be added to the article text
+        The function returns: image_url, filepage_title and filepage_wikitext
+        """
+        for category in categories:
+            self.categories.append(category)
+        if not self.get_infobox_parameters():
+            return False
+        image_id = self.data['doc']['Bestanddeelnummer'][0]
+        infobox = wikitemplates.photograph_template.format(**self.parameters)
+        wikitext = library.page_generator(infobox, self.categories, wikilicense=self.parameters['license'])
+        self.title = library.file_title_generator(self.parameters['title'], image_id, 'jpg', 'NA', order=[0,1,2])
+        return self.title, wikitext, self.image_url
 
+    @classmethod
+    def get_thumbnail(cls, id):
+        """
+        This is a classmethod so that it can be called without creating an object
+        Retrieves the smallest avaiable thumbnail for the current object
+        It can not be given a resolution since all sizes are not available in NA
+        """
+        url = 'http://www.gahetna.nl/beeldbank-api/zoek/{uuid}'.format(uuid=id)
+        data = load_from_url(url)
+        images = data["doc"]["images"]
+        [(key, URLvalues)] = images.items()
+        res_min = 20000
+        for image in URLvalues:
+            res = re.findall(r'(\d+)x\d+/', image["url"])
+            if(int(res[0]) < res_min):
+                res_min = int(res[0])
+                thumb_url = image["url"]
+        return thumb_url
 
-    def get_thumb_url(self, url):
-        uuid_list = []
-        image_list = []
-        xmlstring = urllib2.urlopen(url).read()
-        xmldoc = minidom.parseString(xmlstring)
-        itemlist = xmldoc.getElementsByTagName('channel')
-        for s in itemlist :
-            filelist = s.getElementsByTagName("item")
-            print('filelist size: %s' % len(filelist))
-            for file in filelist:
-                # license check here
-                license = file.getElementsByTagName("right")
-                link = file.getElementsByTagName("link")[0].firstChild.data
-                link = link.replace('hdl.handle.net/10648', 'www.gahetna.nl/beeldbank-api/zoek')
-                print("=====Link=====")
-                print(link);
-                if self.license_checker(link):
-                    uuid = re.search('([\d\w\-]*)$', link).group(0)
-                    uuid_list.append(uuid)
-                    images = file.getElementsByTagName("ese:isShownBy")
-                    gotimage = False
-                    res_min = 20000
-                    for image in images:
-                        res = re.findall(r'(\d+)x\d+/', image.firstChild.data)
-                        if(int(res[0]) < res_min):
-                            res_min = int(res[0])
-                            image_url = image.firstChild.data
-                    image_list.append(image_url)
-                    print(image_url)
-        return uuid_list, image_list
-
-
-    def gallery_builder(self, searchString):
-        nrOfFiles = 0
-        searchString = searchString.replace(" ", "+")
-        url = 'http://www.gahetna.nl/beeldbank-api/opensearch/?q=' + searchString
-        xmlstring = urllib2.urlopen(url).read()
-        xmldoc = minidom.parseString(xmlstring)
-        itemlist = xmldoc.getElementsByTagName('channel')
-        for s in itemlist :
-            nrOfFiles += int(s.getElementsByTagName("opensearch:totalResults")[0].firstChild.data)
-        print(nrOfFiles)
-        return self.get_thumb_url(url)
-        
-    def license_checker(self, url):
-        try:
-            parsed_json = load_json_from_url(url)
-        except Exception as e:
-            raise ValueError('Bad URL ' + str(e))
-        # find out the license info
-        if parsed_json['doc']['auteursrechten_voorwaarde_Public_Domain']:
+    def license_checker(self):
+        """
+        Function to find out the license info
+        returns True if the license is permissible for upload to Commons
+        """
+        if self.data['doc']['auteursrechten_voorwaarde_Public_Domain']:
+            self.parameters['license'] = '{{cc-0}}'
             return True
-        elif parsed_json['doc']['auteursrechten_voorwaarde_CC_BY']:
+        elif self.data['doc']['auteursrechten_voorwaarde_CC_BY']:
+            self.parameters['license'] = '{{cc-by-4.0}}'
             return True
-        elif parsed_json['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
+        elif self.data['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
+            self.parameters['license'] = '{{cc-by-sa-4.0}}'
             return True
         else:
             return False
         return False
+    def get_infobox_parameters(self):
+        """
+        The function that performs the metadata-mapping from the parsed json already stored at self.data
+        It maps the values from the glams data into the photograph parameters.
+        """
 
-    def fill_template(self, uuid, username, categories):
-        print('fill_template inside NA_GLAM invoked.')
-        # Form the url if (glam + uuid) is given
-        if uuid.startswith('http://proxy.handle.net/10648/'):
-            uuid = extractUUID(uuid)
-
-        url = 'http://www.gahetna.nl/beeldbank-api/zoek/' + uuid
-        try:
-            infobox_type, parsed_j = self.choose_correct_template(url)
-        except Exception as e:
-            raise ValueError('Incorrect URL given: ' + e)  # FIXME: raise, don't print
-
-        # perform the glam specific metadata mapping here
-        # and form the dictionary
-        print('Mapping began...')
-        mapping = photograph_parameters
-        creator = parsed_j['doc']['Vervaardiger'][0]
+        creator = self.data['doc']['Vervaardiger'][0]
 
         if 'onbekend' in creator.lower():
             photographer = '{{unknown}}'
@@ -136,86 +129,73 @@ class NationaalArchiefGLAM(GenericGLAM):
             if isAnefo:
                 photographer += ' (Anefo)'
 
-        mapping['photographer'] = photographer
+        self.parameters['photographer'] = photographer
 
         # check if the title is empty
-        mapping['title'] = parsed_j['doc']['Titel'] or 'zonder titel'
+        self.parameters['title'] = self.data['doc']['Titel'] or 'zonder titel'
         # TODO: Add the language tag by guessing the language
         # of the title and description
-        mapping['description'] = parsed_j['doc']['Inhoud'] or mapping['title']
+        self.parameters['description'] = self.data['doc']['Inhoud'] or self.parameters['title']
 
-        mapping['date'] = parsed_j['doc']['Inhoudsdatering']
-        mapping['medium'] = parsed_j['doc']['Materiaalsoort'][0]
-        mapping['institution'] = 'Nationaal Archief'
-        mapping['department'] = parsed_j['doc']['Serie_Collectie'][0]
+        self.parameters['date'] = self.data['doc']['Inhoudsdatering']
+        self.parameters['medium'] = self.data['doc']['Materiaalsoort'][0]
+        self.parameters['institution'] = 'Nationaal Archief'
+        self.parameters['department'] = self.data['doc']['Serie_Collectie'][0]
 
-        mapping['accession_number'] = (
+        self.parameters['accession_number'] = (
             '{} (archive inventory number), '
             '{} (file number)'
         ).format(
-            parsed_j['doc']['Nummer_toegang'],
-            parsed_j['doc']['Bestanddeelnummer'][0]
+            self.data['doc']['Nummer_toegang'],
+            self.data['doc']['Bestanddeelnummer'][0]
         )
-        mapping['source'] = (
+        self.parameters['source'] = (
             'Nationaal Archief, {} '
             '{{{{Nationaal Archief-source|UUID = {} '
             '|file_share_id = {} }}}}'
         ).format(
-            parsed_j['doc']['Serie_Collectie'][0],
-            parsed_j['doc']['id'],
-            parsed_j['doc']['Bestanddeelnummer'][0]
+            self.data['doc']['Serie_Collectie'][0],
+            self.data['doc']['id'],
+            self.data['doc']['Bestanddeelnummer'][0]
         )
 
-        if (parsed_j['doc']['auteursrechten_voorwaarde_Public_Domain'] or
-            'CC0' in parsed_j['doc']['auteursrechten_auteursrechthebbende']):
-            mapping['license'] = '{{CC-0}}'
-        elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY']:
-            mapping['license'] = '{{cc-by-4.0}}'
-        elif parsed_j['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
-            mapping['license'] = '{{cc-by-sa-4.0}}'
+        if (self.data['doc']['auteursrechten_voorwaarde_Public_Domain'] or
+            'CC0' in self.data['doc']['auteursrechten_auteursrechthebbende']):
+            self.parameters['license'] = '{{CC-0}}'
+        elif self.data['doc']['auteursrechten_voorwaarde_CC_BY']:
+            self.parameters['license'] = '{{cc-by-4.0}}'
+        elif self.data['doc']['auteursrechten_voorwaarde_CC_BY_SA']:
+            self.parameters['license'] = '{{cc-by-sa-4.0}}'
         else:
-            mapping['license'] = ''
+            self.parameters['license'] = ''
 
-        mapping['glam_name'] = 'Nationaal Archief'
-
-        # TODO: Solve category redirects?
-        if not categories:
-            categories.append('[[Category:Images from the '
-                      'Nationaal Archief needing categories]]')
-        if '{{unknown' not in photographer.lower():
-            categories.append(
-                '[[Category:Photographs by {}]]'.format(photographer))
-        mapping['category_text'] = '\n'.join(categories)
-
-        # generate filename and find the image url
-        images = parsed_j["doc"]["images"]
-        # extract the key
+        self.parameters['glam_name'] = 'Nationaal Archief'
+        
+        # Obtain the location of the largest resolution image for upload
+        images = self.data["doc"]["images"]
         [(key, URLvalues)] = images.items()
-
-        gotimage = False
+        res_max = 0
         for image in URLvalues:
-            if '10000x10000' in image["url"] and not gotimage:
-                gotimage = True
+            res = re.findall(r'(\d+)x\d+/', image["url"])
+            if(int(res[0]) > res_max):
+                res_min = int(res[0])
                 image_url = image["url"]
+        self.image_url = image_url
+        self.parameters['file_location'] = image_url
+        return True
 
-        if len(mapping['title']) > 85:
-            # cut off the description if it's longer than 85 tokens at a space around 85.
-            filetitle = mapping['title'][:90]
-            cutposition = filetitle.rfind(' ')
-            if(cutposition > 20):
-                filetitle = re.sub('[:/#\[\]\{\}<>\|_]', '', unidecode(filetitle[:cutposition]))
-        else:
-            filetitle = re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(mapping['title']))
-        articletitle = (
-            '{} - Nationaal Archief - '
-            '{}.jpg').format(
-                filetitle,
-                parsed_j['doc']['Bestanddeelnummer'][0]
-            )
-
-        mapping['file_location'] = image_url
-        mapping['filename'] = articletitle
-        mapping['username'] = username
-        print('End of NA fill_template username=' + username)
-        # call the fill_template method of the GenericGLAM (later return)
-        return super(NationaalArchiefGLAM, self).fill_template(mapping)
+    @classmethod
+    def search_to_identifiers(cls, searchterm):        
+        """
+        A classmethod to obtains the identifiers of images from a given search string
+        Takes the search string as input
+        Returns a list of identifiers of the images found as a search result
+        """
+        ids = []
+        searchterm = searchterm.replace(" ", "+")
+        url = 'http://www.gahetna.nl/beeldbank-api/zoek/?q={search}'.format(search=searchterm)
+        parsed_json = load_from_url(url)
+        docs = parsed_json['response']['docs']
+        for doc in docs:
+            ids.append(doc['id'])
+        return ids

@@ -13,22 +13,16 @@ import json
 from unidecode import unidecode
 
 
-def load_json_from_url(url):
-    #Function to load the json from url and get the parsed json
-    try:
-        return json.loads(urllib2.urlopen(url).read().decode())
-    except Exception as e:
-        raise ValueError('Bad URL given ' + e)
-
-def load_from_url(self):
+def load_from_url(url):
         """
         Function which loads and parses the json from the database url.
         Input is url with json, output is dictionary with the structure from the json
         """
         #TODO: Make this code work in both python2 and 3, now it works locally in 3 and the py2 code is in nationaalarchief
-        jstring=urllib2.urlopen(self.url).read().decode('utf-8')
-        parsed_json = json.loads(jstring)
-        return parsed_json
+        try:
+            return json.loads(urllib2.urlopen(url).read().decode())
+        except Exception as e:
+            raise ValueError('Bad URL given ' + str(e))
 
 def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_rawlength=90, order=[0,2,1], separator=' - '):
     '''
@@ -84,8 +78,6 @@ def upload_file(file_location, description, filename, username, glam_name):
     Given a description, file_location and filename this function uploads the file at the file location
     using the description as wikitext and using the filename given as filename on Commons.
     '''
-    print('inside upload_file() username=' + username)
-    print('file location is ' + file_location)
     local_filepath, headers = urllib.request.urlretrieve(file_location)
     wiki_file_location = 'File:' + filename
     print('Wiki file location and local path are ' + wiki_file_location + local_filepath)

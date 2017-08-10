@@ -29,8 +29,6 @@ def index():
 
 @app.route('/login')
 def login():
-    print("Consumer Key is %s " % app.config['CONSUMER_KEY'])
-    print("Consumer Secret is %s " % app.config['CONSUMER_SECRET'])
     consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['CONSUMER_SECRET'])
     try:
         redirect, request_token = mwoauth.initiate(
@@ -48,7 +46,6 @@ def login():
 def receiveData():
     # if request.method == 'POST':
     username = flask.session.get('username', None)
-    print('Configuring pywikibot...')
     pywikibot.config.authenticate['commons.wikimedia.org'] = (
         app.config['CONSUMER_KEY'],
         app.config['CONSUMER_SECRET'],
@@ -68,9 +65,7 @@ def receiveData():
         for key in f.keys():
             if 'category' in key:
                 categories.append(flask.request.form[key])
-                print("Multiple categories exist. Appended.")
         glam_list = listOfGlams
-        print(glam1)
         try:
             for glam in glam_list:
                 if glam['name'] == glam1:
@@ -81,21 +76,17 @@ def receiveData():
     # instantiate a proper GLAM class object which in turn instantiates
     # a GenericGLAM class object to form the wikitext
         if glam1 == 'Nationaal Archief':
-            objNA = NationaalArchiefGLAM('Photograph')
-            print('The NA object has been instantiated.')
-            try:
-                wiki_filename = objNA.fill_template(id, username, categories)
-                print('Wiki loc obtained ' + wiki_filename)
+            objNA = NationaalArchiefGLAM(id)
+            if not objNA == None:
+                wiki_filename, wikitext, image_url = objNA.generate_image_information(categories)
+                upload_file(image_url, wikitext, wiki_filename, username, glam1)
                 return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
-            except Exception as e:
-                print(str(e))
+            else:
                 return flask.render_template('error.html', imageId=id)
 
         elif glam1 == 'Amsterdam Museum':
             objAM = AmsterdamMuseumGLAM(id)
-            print('The AM object has been instantiated.')
             if not objAM == None:
-                image_loc = objAM.get_thumbnail(1268)
                 wiki_filename, wikitext, image_url = objAM.generate_image_information(categories)
                 upload_file(image_url, wikitext, wiki_filename, username, glam1)
                 return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
@@ -106,20 +97,21 @@ def receiveData():
         # store the categories in the session to be accessed in /multiUpload
         if categories:
             flask.session['categories'] = categories
+        # obtain the thumbs without instantiating any objects
         if glam1 == 'Nationaal Archief':
-            objNA = NationaalArchiefGLAM('Photograph')
-            uuid_list, image_list = objNA.gallery_builder(searchstring)
-            return flask.render_template('image_gallery.html', glam_name = 'NA', uuid_list = uuid_list, image_list = image_list)
+            ids = NationaalArchiefGLAM.search_to_identifiers(searchstring)
+            image_list = []
+            for id in ids:
+                image_loc = NationaalArchiefGLAM.get_thumbnail(id)
+                image_list.append(image_loc)
+            return flask.render_template('image_gallery.html', glam_name = 'NA', uuid_list = ids, image_list = image_list)
         elif glam1 == 'Amsterdam Museum':
             ids = AmsterdamMuseumGLAM.search_to_identifiers(searchstring)
             image_list = []
             for id in ids:
-                print(str(id[0]))
-                objAM = AmsterdamMuseumGLAM(str(id[0]))
-                if not objAM == None:
-                    image_loc = objAM.get_thumbnail(188)
-                    image_list.append(image_loc)
-            return flask.render_template('image_gallery.html', glam_name = 'AM', image_list = image_list)
+                image_loc = AmsterdamMuseumGLAM.get_thumbnail(id)
+                image_list.append(image_loc)
+            return flask.render_template('image_gallery.html', glam_name = 'AM',  uuid_list = ids, image_list = image_list)
 
 
 @app.route('/multiUpload', methods=['POST'])
@@ -128,25 +120,21 @@ def multiUpload():
     categories = flask.session.get('categories')
     username = flask.session.get('username', None)
     f = flask.request.form
+    ids = f.getlist('selected')
     wiki_filename_list = []
-    print(f.getlist('selected'))
     if glam_name == 'NA':
-        for image_id in f.getlist('selected'):
-            print("UUID of to be uploaded image " + image_id)
-            objNA = NationaalArchiefGLAM('Photograph')
-            print('The NA object has been instantiated.')
-            try:
-                wiki_filename = objNA.fill_template(image_id, username, categories)
-                print('Wiki loc obtained ' + wiki_filename)
-                wiki_filename_list.append(wiki_filename)
-            except Exception as e:
-                print(str(e))
-                return flask.render_template('error.html')
+        for identifier in ids:
+            objNA = NationaalArchiefGLAM(identifier)
+            if not objNA == None:
+                wiki_filename, wikitext, image_url = objNA.generate_image_information()
+                upload_file(image_url, wikitext, wiki_filename, username, glam_name)
     elif glam_name == 'AM':
-        for image_loc in f.getlist('selected'):
-            # TODO: Obtain the wikitext, wiki_filename from the corresponding AM objects
-            upload_file(image_url, wikitext, wiki_filename, username, glam_name)
-    return flask.render_template('results.html', uuid = '', username = username, filenames = wiki_filename_list)
+        for identifier in f.getlist('selected'):
+            objAM = AmsterdamMuseumGLAM(identifier)
+            if not objAM == None:
+                wiki_filename, wikitext, image_url = objAM.generate_image_information(categories)
+                upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+    return flask.render_template('results.html', username = username, filenames = wiki_filename_list)
 
 
 @app.route('/oauth-callback')
@@ -158,7 +146,6 @@ def oauth_callback():
         return flask.redirect(flask.url_for('index'))
 
     try:
-        print('URL query string is '+str(flask.request.query_string))
         access_token = mwoauth.complete(
             app.config['OAUTH_MWURI'],
             consumer_token,
