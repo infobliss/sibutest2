@@ -104,14 +104,18 @@ def receiveData():
             for id in ids:
                 image_loc = NationaalArchiefGLAM.get_thumbnail(id)
                 image_list.append(image_loc)
-            return flask.render_template('image_gallery.html', glam_name = 'NA', uuid_list = ids, image_list = image_list)
+            prefix = 'http://proxy.handle.net/10648/'
+            return flask.render_template('image_gallery.html', glam_name = 'NA', uuid_list = ids,
+             image_list = image_list, prefix = prefix)
         elif glam1 == 'Amsterdam Museum':
             ids = AmsterdamMuseumGLAM.search_to_identifiers(searchstring)
             image_list = []
             for id in ids:
                 image_loc = AmsterdamMuseumGLAM.get_thumbnail(id)
                 image_list.append(image_loc)
-            return flask.render_template('image_gallery.html', glam_name = 'AM',  uuid_list = ids, image_list = image_list)
+            prefix = 'http://hdl.handle.net/11259/collection.'
+            return flask.render_template('image_gallery.html', glam_name = 'AM',  uuid_list = ids,
+             image_list = image_list, prefix = prefix)
 
 
 @app.route('/multiUpload', methods=['POST'])

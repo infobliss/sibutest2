@@ -31,38 +31,23 @@ div.desc {
     text-align: center;
 }
 </style>
-<!--
-<div class="gallery">
-  <a target="_blank" href="http://afbeeldingen.gahetna.nl/naa/thumb/1280x1280/25c6187d-2735-9c85-0e09-b2f447d2710c.jpg">
-    <img src="http://afbeeldingen.gahetna.nl/naa/thumb/1280x1280/25c6187d-2735-9c85-0e09-b2f447d2710c.jpg" alt="Image 1">
-  </a>
-  <div class="desc"><input type="checkbox" name="selected" value="Image"> I want this<br></div>
-</div>
--->
+
 <span style="display:inline-block; width: 30px;"></span>
 
 <form action = "{{ url_for('multiUpload', glam = glam_name) }}" method="post">
-{% if glam_name == 'NA' %}
+  <div id=customtext>
+    <center>
+      <h3>Please select the images you want to upload </h3>
+    </center>
+  </div>
   {% for file in image_list %}
   <div id="gallery" class="gallery">
-    <a target="_blank" href="{{file}}">
+    <a target="_blank" href="{{prefix + uuid_list[loop.index - 1]}}">
       <img src={{file}}>
     </a>
-      <div class="desc"><input type="checkbox" name="selected" value="{{uuid_list[loop.index - 1]}}"> Include<br></div>
+    <input type="checkbox" name="selected" value="{{uuid_list[loop.index - 1]}}"><br>
   </div>
   {% endfor %}
-{% endif %}
-
-{% if glam_name == 'AM' %}
-  {% for file in image_list %}
-    <div id="gallery" class="gallery">
-      <a target="_blank" href="{{file}}">
-        <img src={{file}}>
-      </a>
-        <div class="desc"><input type="checkbox" name="selected" value="{{file}}"> Include<br></div>
-    </div>
-  {% endfor %}
-{% endif %}
 
 <div id="lower">
   <center>

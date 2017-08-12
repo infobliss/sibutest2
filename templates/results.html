@@ -6,26 +6,22 @@
 {% endblock %}
 
 {% block content %}
-    <style>
-    #customtext {
-            background: #ecf2f5;
-            width: 100%;
-            font-family: "Lato", sans-serif;
-            color: #286090;
-            font-size: 20px;
-            padding-left: 25px;
-            margin-top: 30px;
-            border-top: 1px solid #ccc;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;
-        }
-    </style>
-
+    
+    {% if uuid %}
     <div id=customtext>
         <center>
             <p>The image with id "{{ uuid }}" from "{{glam_name}}" is now available in Wikimedia Commons!</p>
-            <p>Find the image in Wikimedia Commons <a href="https://commons.wikimedia.org/wiki/File:{{filename}}" target="_blank">here</a></p>
+            <p>Find the Wikimedia Commons link <a href="https://commons.wikimedia.org/wiki/File:{{filename}}" target="_blank">here</a></p>
         </center>
     </div>
+    {% else %}
+    <div id=customtext>
+        <center>
+            <p>The selected images are now available in Wikimedia Commons! Duplicates are ignored!</p>
+            <p>Find the images in Wikimedia Commons <a href="https://commons.wikimedia.org/w/index.php?title=Special:ListFiles/{{username}}" target="_blank">here</a></p>
+        </center>
+    </div>
+    {% endif %}    
+
 {% endblock %}
 
