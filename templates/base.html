@@ -59,9 +59,38 @@
     border-bottom-color: #732ce9;
     border-bottom-width: 1px;
     }
+    label {
+        color: #286090;
+        display: inline-block;
+        margin-left: 18px;
+        padding-top: 10px;
+        font-size: 16px;
+    }
+    #lower {
+    background: #ecf2f5;
+    width: 100%;
+    height: 60px;
+    display: flex;  
+    align-items: center;
+    justify-content: center;
+    }
+
+    #customtext {
+        background: #ecf2f5;
+        width: 100%;
+        font-family: "Lato", sans-serif;
+        font-size: 20px;
+        color: #286090;
+        padding-left: 25px;
+        margin-top: 20px;
+        border-top: 2px solid #ccc;
+        border-bottom-right-radius: 3px;
+        border-bottom-left-radius: 3px;
+    }
     @font-face { font-family: coming-soon; }
     div { font-family: 'coming-soon'; } 
     </style>
+
 </head>
 <body>
   <div class="container">
@@ -72,7 +101,7 @@
       <ul class="nav nav-pills nav-justified border">
         <li><a href="{{ url_for('index') }}">Home</a></li>
         <li><a href="{{ url_for('under_construction') }}">About</a></li>
-	<li><a href="{{ url_for('under_construction') }}">Batch-Upload</a></li>
+	<li><a href="{{ url_for('batch_upload') }}">Batch-Upload</a></li>
 	<li><a href="{{ url_for('help_page') }}">Help</a></li>
         <li><a style="margin:0px;padding:0px;margin-top:4px" href="https://tools.wmflabs.org/"><img src="//wikitech.wikimedia.org/w/images/c/cf/Labslogo_thumb.png" title="Powered by Wikimedia Labs" alt="wikimedia Labs" border="0" width="32" ></a></li>
       </ul>
