@@ -53,6 +53,7 @@ def receiveData():
         flask.session['access_token_secret'])
     pywikibot.config.usernames['commons']['commons'] = username
     pywikibot.Site('commons', 'commons', user=username).login()
+    glam_list = listOfGlams
     glam1 = flask.request.form['glam_name']
     searchstring = flask.request.form['searchstring']
     id = flask.request.form['uuid']
@@ -65,79 +66,53 @@ def receiveData():
         for key in f.keys():
             if 'category' in key:
                 categories.append(flask.request.form[key])
-        glam_list = listOfGlams
-        try:
-            for glam in glam_list:
-                if glam['name'] == glam1:
-                    break
-        except:
-            return "Update GLAM List: GLAM Not Found in our list"
 
     # instantiate a proper GLAM class object which in turn instantiates
     # a GenericGLAM class object to form the wikitext
-        if glam1 == 'Nationaal Archief':
-            objNA = NationaalArchiefGLAM(id)
-            if not objNA == None:
-                wiki_filename, wikitext, image_url = objNA.generate_image_information(categories)
-                upload_file(image_url, wikitext, wiki_filename, username, glam1)
-                return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
-            else:
-                return flask.render_template('error.html', imageId=id)
-
-        elif glam1 == 'Amsterdam Museum':
-            objAM = AmsterdamMuseumGLAM(id)
-            if not objAM == None:
-                wiki_filename, wikitext, image_url = objAM.generate_image_information(categories)
-                upload_file(image_url, wikitext, wiki_filename, username, glam1)
-                return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
-            else:
-                return flask.render_template('error.html', imageId=id)
+        for glam in glam_list:
+            if glam['name'] == glam1:
+                obj = glam['class'](id)
+                if not obj == None:
+                    wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
+                    upload_file(image_url, wikitext, wiki_filename, username, glam1)
+                    return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
+                else:
+                    return flask.render_template('error.html', imageId=id)
+                break
 
     else:
         # store the categories in the session to be accessed in /multiUpload
         if categories:
             flask.session['categories'] = categories
         # obtain the thumbs without instantiating any objects
-        if glam1 == 'Nationaal Archief':
-            ids = NationaalArchiefGLAM.search_to_identifiers(searchstring)
-            image_list = []
-            for id in ids:
-                image_loc = NationaalArchiefGLAM.get_thumbnail(id)
-                image_list.append(image_loc)
-            prefix = 'http://proxy.handle.net/10648/'
-            return flask.render_template('image_gallery.html', glam_name = 'NA', uuid_list = ids,
-             image_list = image_list, prefix = prefix)
-        elif glam1 == 'Amsterdam Museum':
-            ids = AmsterdamMuseumGLAM.search_to_identifiers(searchstring)
-            image_list = []
-            for id in ids:
-                image_loc = AmsterdamMuseumGLAM.get_thumbnail(id)
-                image_list.append(image_loc)
-            prefix = 'http://hdl.handle.net/11259/collection.'
-            return flask.render_template('image_gallery.html', glam_name = 'AM',  uuid_list = ids,
-             image_list = image_list, prefix = prefix)
+        for glam in glam_list:
+            if glam['name'] == glam1:
+                ids = glam['class'].search_to_identifiers(searchstring)
+                image_list = []
+                for id in ids:
+                    image_loc = glam['class'].get_thumbnail(id)
+                    image_list.append(image_loc)
+                prefix = glam['urlPrefix']
+                return flask.render_template('image_gallery.html', glam_name = glam['name'], uuid_list = ids,
+                 image_list = image_list, prefix = prefix)
 
 
 @app.route('/multiUpload', methods=['POST'])
 def multiUpload():
+    glam_list = listOfGlams
     glam_name = flask.request.args.get('glam', None)
     categories = flask.session.get('categories')
     username = flask.session.get('username', None)
     f = flask.request.form
     ids = f.getlist('selected')
     wiki_filename_list = []
-    if glam_name == 'NA':
-        for identifier in ids:
-            objNA = NationaalArchiefGLAM(identifier)
-            if not objNA == None:
-                wiki_filename, wikitext, image_url = objNA.generate_image_information()
-                upload_file(image_url, wikitext, wiki_filename, username, glam_name)
-    elif glam_name == 'AM':
-        for identifier in f.getlist('selected'):
-            objAM = AmsterdamMuseumGLAM(identifier)
-            if not objAM == None:
-                wiki_filename, wikitext, image_url = objAM.generate_image_information(categories)
-                upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+    for glam in glam_list:
+        if glam['name'] == glam_name:
+            for identifier in ids:
+                obj = glam['class'](identifier)
+                if not obj == None:
+                    wiki_filename, wikitext, image_url = obj.generate_image_information()
+                    upload_file(image_url, wikitext, wiki_filename, username, glam_name)
     return flask.render_template('results.html', username = username, filenames = wiki_filename_list)
 
 

@@ -1,4 +1,17 @@
+from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
+from glams.AmsterdamMuseumGLAM import AmsterdamMuseumGLAM
+
 listOfGlams = [{
+	'name' : 'Nationaal Archief',
+	'class': NationaalArchiefGLAM, 
+	'urlPrefix': 'http://proxy.handle.net/10648/'
+},
+{
+	'name' : 'Amsterdam Museum',
+	'class': AmsterdamMuseumGLAM,
+	'urlPrefix': 'http://hdl.handle.net/11259/collection.'
+},
+{
 	'name' : 'AucklandMuseumCCBY'
 },
 {
