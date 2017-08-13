@@ -98,10 +98,7 @@
        
      <!-- Begin Page Content -->
      <div id="container">
-         <form action = "{{ url_for('receiveData') }}" method="post">
-               
-              <label>Enter details: </label>
-
+         <form action = "{{ url_for('receiveData') }}" method="post">               
               <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
                    <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
                    <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
@@ -110,7 +107,7 @@
               </p>
               <div id="result"></div> 
               <p><input type="text" name='searchstring' placeholder="Enter searchstring (for multiple image upload)"></p>
-              <h5><span>For Uploading single image enter the URL/Unique ID of the image</span></h5> 
+              <h5><span>Or for Uploading single image enter the URL/Unique ID of the image below</span></h5> 
               <p><input type="text" name='uuid'  placeholder="URL/Unique ID of image (ignored if searchstring is given)"></p>
               <div id="sampleUrl"></div>
               <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
@@ -122,12 +119,12 @@
                   function dropdownTip(value){
                       switch(value) {
                         case "Nationaal Archief": 
-                          document.getElementById("result").innerHTML = '<p>The national archive of the Netherlands, located in The Hague</p>';
-                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: http://proxy.handle.net/10648/a9deaf60-d0b4-102d-bcf8-003048976d84</p><p>Sample Unique ID: a9deaf60-d0b4-102d-bcf8-003048976d84';
+                          document.getElementById("result").innerHTML = '<p><a href="https://commons.wikimedia.org/w/index.php?title=Special:ListFiles/{{username}}" target="_blank"><a href="http://www.gahetna.nl" target="_blank">The national archive of the Netherlands, located in The Hague</a></p>';
+                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: <a href="http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84" target="_blank">http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84</a></p><p>Sample Unique ID: aa704164-d0b4-102d-bcf8-003048976d84</p>';
                           break;
                         case "Amsterdam Museum":
-                          document.getElementById("result").innerHTML = '<p>The Amsterdam Museum is a museum about the history of Amsterdam</p>';
-                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: http://hdl.handle.net/11259/collection.5782</p>';
+                          document.getElementById("result").innerHTML = '<p><a href="http://am.adlibhosting.com" target="_blank">The Amsterdam Museum is a museum about the history of Amsterdam</a></p>';
+                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: <a href="http://hdl.handle.net/11259/collection.5782" target="_blank">http://hdl.handle.net/11259/collection.5782</a></p>';
                           break;
                         default:
                           document.getElementById("result").innerHTML = '<p>'+value+'</p>';
@@ -155,8 +152,6 @@
 
 
       {% else %}
-      <!--  <label>Sibutest welcomes you. Please login to continue.</label>  -->
-      <!--  <p><a href="{{ url_for('login') }}">login</a></p>  -->
       <div> 
         <form method="get" action="{{ url_for('login') }}">
           <center>
