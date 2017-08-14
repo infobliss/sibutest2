@@ -1,7 +1,7 @@
 from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
 from glams.AmsterdamMuseumGLAM import AmsterdamMuseumGLAM
 
-listOfGlams = [{
+list_of_glams = [{
 	'name' : 'Nationaal Archief',
 	'class': NationaalArchiefGLAM, 
 	'urlPrefix': 'http://proxy.handle.net/10648/'
