@@ -1,7 +1,7 @@
 ''' generic library functions '''
 import re
 
-#urllib works different in python 2 and 3 try catch to get the correct one
+# urllib works different in python 2 and 3 try catch to get the correct one
 try:
     import urllib.request as urllib2
 except ImportError:
@@ -18,7 +18,8 @@ def load_from_url(url):
         Function which loads and parses the json from the database url.
         Input is url with json, output is dictionary with the structure from the json
         """
-        #TODO: Make this code work in both python2 and 3, now it works locally in 3 and the py2 code is in nationaalarchief
+        # TODO: Make this code work in both python2 and 3, now it works locally in 3
+        # and the py2 code is in nationaalarchief
         try:
             return json.loads(urllib2.urlopen(url).read().decode())
         except Exception as e:
@@ -41,20 +42,24 @@ def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_
         #cut off the description if it's longer than 85 tokens at a space around 85.
         worktitle = glam_filetitle[:max_rawlength]
         cutposition = worktitle.rfind(' ')
-        if(cutposition>20):	
+        if(cutposition > 20):	
             worktitle = re.sub('[:/#\[\]\{\}<>\|_]', '', unidecode(worktitle[:cutposition]))
     else:
-        worktitle=re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(glam_filetitle))
+        worktitle = re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(glam_filetitle))
     elements = [worktitle, image_id, glam_name]
-    filetitle = "{}{}{}{}{}{}{}".format(elements[order[0]], separator, elements[order[1]], separator, elements[order[2]], '.', image_ext)
-    
+    filetitle = "{element0}{separat}{element1}{separat1}{element2}.{extension}".format(
+        element0=elements[order[0]], separat=separator,
+        element1=elements[order[1]], separat1=separator,
+        element2=elements[order[2]], extension=image_ext)
+
     return filetitle
+
 
 def page_generator(infobox, categories, wikilicense='', license_in_infobox=False):
     '''
     This function expects a filled infobox, a license-template and a set of categories and forms this into a
     wikitext image_description.
-    if License_in_infobox=True than the license is in the infobox and no license is givens
+    if License_in_infobox=True then the license is in the infobox and no license is givens
     '''
     pagetemplate = '''\
 =={{{{int:filedesc}}}}==
@@ -68,10 +73,11 @@ def page_generator(infobox, categories, wikilicense='', license_in_infobox=False
     for category in categories:
         parsed_categories += '\n[[Category:{category}]]'.format(category=category)
     if license_in_infobox:
-        license_text=''
+        license_text = ''
     else:
         license_text = license_template.format(wikilicense=wikilicense)
-    return pagetemplate.format(infobox=infobox, wikilicense=license_text,categories=parsed_categories)
+    return pagetemplate.format(infobox=infobox, wikilicense=license_text, categories=parsed_categories)
+
 
 def upload_file(file_location, description, filename, username, glam_name):
     '''
@@ -80,20 +86,19 @@ def upload_file(file_location, description, filename, username, glam_name):
     '''
     local_filepath, headers = urllib.request.urlretrieve(file_location)
     wiki_file_location = 'File:' + filename
-    print('Wiki file location and local path are ' + wiki_file_location + local_filepath)
     site = pywikibot.Site('commons', 'commons', user=username)
     page = pywikibot.FilePage(site, wiki_file_location)
     if page.exists():
-        print('Exists')
+        return 'duplicate at https://commons.wikimedia.org/wiki/{loc}'.format(loc=wiki_file_location)
     else:
         try:
-            print('Inside try block...')   
             if not site.upload(
-                page, source_filename = local_filepath, comment = 'Uploaded from ' + glam_name + " with g2c tool", text = description
+                page, source_filename=local_filepath, comment='Uploaded from ' + glam_name + " with g2c tool", text=description
             ):
-                print('Upload failed!')
-        except pywikibot.data.api.APIError:
+                return None
+        except pywikibot.data.api.APIError as e:
             # recheck
             site.loadpageinfo(page)
             if not page.exists():
-                raise    
+                return str(e)
+                raise

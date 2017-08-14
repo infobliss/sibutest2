@@ -47,8 +47,9 @@
             color: #777;
             padding-left: 10px;
             margin: 10px;
-            margin-top: 12px;
-            margin-left: 18px;
+            margin-top: 2px;
+            margin-left: 0px;
+            margin-bottom: 15px;
             width: 600px;
             height: 35px;
             border: 1px solid #c7d0d2;
@@ -74,20 +75,28 @@
         
         #dropdown{
             padding-left: 10px;
-            margin-left: 18px;
+            margin-left: 0px;
+            margin-bottom: 10px;
             width:550px;   
             text-align-last:center;
         }
 
         select .ct { padding-left: 10px; text-align-last:center; }
 
-        p { color: #286090; }
+        p { color: #286090; padding-left: 80px;}
 
         h5 {
             color: #286090; width:100%; padding-left: 10px; border-bottom: 1px solid #000; 
             line-height:0.1em; margin:10px 0 20px; 
         } 
         h5 span { background:#fff; padding:0 10px; }
+
+        #close {
+          float:right;
+          display:inline-block;
+          padding:2px 5px;
+          background:#ccc;
+        }
        
     </style>
     {% if username %}
@@ -98,7 +107,11 @@
        
      <!-- Begin Page Content -->
      <div id="container">
+      <center>
+        <label>Upload a Single Image or Choose from a Gallery of Images by entering a Search Term</label>
+        </center>
          <form action = "{{ url_for('receiveData') }}" method="post">               
+              <p>To upload one or multiple images first select a glam</p>
               <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
                    <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
                    <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
@@ -106,12 +119,12 @@
                  </select>
               </p>
               <div id="result"></div> 
-              <p><input type="text" name='searchstring' placeholder="Enter searchstring (for multiple image upload)"></p>
-              <h5><span>Or for Uploading single image enter the URL/Unique ID of the image below</span></h5> 
-              <p><input type="text" name='uuid'  placeholder="URL/Unique ID of image (ignored if searchstring is given)"></p>
+              <p>Either enter a URL/Unique ID to upload a single file or enter a Search Term to search for multiple files</p>
+              <p><input type="text" name='unique_id'  placeholder="URL/Unique ID of image (ignored if Search Term is given)"></p>
               <div id="sampleUrl"></div>
+              <p><input type="text" name='searchstring' placeholder="Search Term (for multiple image upload)"></p>
               <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
-              <p>&nbsp;&nbsp;More category?&nbsp;
+              <p>&nbsp;&nbsp;Add another category&nbsp;
               <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
                    <span id="response"</span>
               </p>
@@ -137,13 +150,20 @@
                      function addInput()
                      {
                          var boxName="category"+count; 
-                         document.getElementById('response').innerHTML+='<p><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p>';
+                         document.getElementById('response').innerHTML+='<div><span id="close" onclick="close()">x</span><p><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p></div>';
                          count += 1;
                      }
+                     
+                    function close(){
+                        this.parentNode.parentNode.parentNode
+                        .removeChild(this.parentNode.parentNode);
+                        return false;
+                      };
+                    };
               </script>            
             <div id="lower">
                <center>
-                 <input class="btn btn-primary btn-md" type="submit" value="Upload to Commons"/>
+                 <input class="btn btn-primary btn-md" type="submit" value="Upload or See Image Gallery"/>
                </center>
             </div><!--/ lower-->
             </form>

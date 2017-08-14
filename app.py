@@ -4,7 +4,7 @@ import os
 import yaml
 from requests_oauthlib import OAuth1
 import pywikibot
-from glamFullList import listOfGlams
+from glamFullList import list_of_glams as glam_list
 from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
 from glams.AmsterdamMuseumGLAM import AmsterdamMuseumGLAM
 from libraries.gen_lib import upload_file
@@ -53,13 +53,12 @@ def receiveData():
         flask.session['access_token_secret'])
     pywikibot.config.usernames['commons']['commons'] = username
     pywikibot.Site('commons', 'commons', user=username).login()
-    glam_list = listOfGlams
-    glam1 = flask.request.form['glam_name']
+    glam_name = flask.request.form['glam_name']
     searchstring = flask.request.form['searchstring']
-    id = flask.request.form['uuid']
+    identifier = flask.request.form['unique_id']
     category1 = flask.request.form['categories']
     categories = [category1]
-    if not (searchstring or id):
+    if not (searchstring or identifier):
         return flask.render_template('index.html', username=username)
     elif not searchstring:      # if searchstring is empty
         f = flask.request.form
@@ -70,14 +69,16 @@ def receiveData():
     # instantiate a proper GLAM class object which in turn instantiates
     # a GenericGLAM class object to form the wikitext
         for glam in glam_list:
-            if glam['name'] == glam1:
-                obj = glam['class'](id)
+            if glam['name'] == glam_name:
+                obj = glam['class'](identifier)
                 if not obj == None:
                     wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
-                    upload_file(image_url, wikitext, wiki_filename, username, glam1)
-                    return flask.render_template('results.html', glam_name = glam1, uuid = id, filename = wiki_filename)
+                    result = upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+                    if not result == None:
+                        return flask.render_template('error.html', error_msg = result)
+                    return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
                 else:
-                    return flask.render_template('error.html', imageId=id)
+                    return flask.render_template('error.html', imageId=identifier)
                 break
 
     else:
@@ -86,7 +87,7 @@ def receiveData():
             flask.session['categories'] = categories
         # obtain the thumbs without instantiating any objects
         for glam in glam_list:
-            if glam['name'] == glam1:
+            if glam['name'] == glam_name:
                 ids = glam['class'].search_to_identifiers(searchstring)
                 image_list = []
                 for id in ids:
@@ -99,7 +100,6 @@ def receiveData():
 
 @app.route('/multiUpload', methods=['POST'])
 def multiUpload():
-    glam_list = listOfGlams
     glam_name = flask.request.args.get('glam', None)
     categories = flask.session.get('categories')
     username = flask.session.get('username', None)

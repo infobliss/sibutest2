@@ -6,10 +6,13 @@
 {% endblock %}
 
 {% block content %}
-
     <div id=customtext>
         <center>
-            <p>The image with given id "{{ imageId }}" was not found!</p>
+        	{% if error_msg %}
+        		<p>{{error_msg}}</p>
+        	{% else %}
+            	<p>The image with given id "{{ imageId }}" was not found!</p>
+            {% endif %}
         </center>
     </div>
 {% endblock %}
