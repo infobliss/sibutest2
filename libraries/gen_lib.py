@@ -26,7 +26,8 @@ def load_from_url(url):
         raise ValueError(str(e))
 
 
-def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_rawlength=90, order=[0, 2, 1], separator=' - '):
+def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='',
+                        max_rawlength=90, order=[0, 2, 1], separator=' - '):
     '''
     Function to generate a standard title for the image to be uploaded
 
@@ -48,15 +49,16 @@ def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_
     else:
         worktitle = re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(glam_filetitle))
     elements = [worktitle, image_id, glam_name]
-    filetitle = ''.join(elements[order[0]], separator, elements[order[1]], separator, elements[order[2]], '.', image_ext)
+    filetitle = ''.join(elements[order[0]], separator, elements[order[1]],
+                separator, elements[order[2]], '.', image_ext)
 
     return filetitle
 
 
 def page_generator(infobox, categories, wikilicense='', license_in_infobox=False):
     '''
-    This function expects a filled infobox, a license-template and a set of categories and forms this into a
-    wikitext image_description.
+    This function expects a filled infobox, a license-template and a set of categories and
+    forms this into a wikitext image_description.
     if License_in_infobox=True then the license is in the infobox and no license is givens
     '''
     pagetemplate = '''\
@@ -74,27 +76,31 @@ def page_generator(infobox, categories, wikilicense='', license_in_infobox=False
         license_text = ''
     else:
         license_text = license_template.format(wikilicense=wikilicense)
-    return pagetemplate.format(infobox=infobox, wikilicense=license_text, categories=parsed_categories)
+    return pagetemplate.format(
+        infobox=infobox, wikilicense=license_text, categories=parsed_categories)
 
 
 def upload_file(file_location, description, filename, username, glam_name):
     '''
-    Given a description, file_location and filename this function uploads the file at the file location
-    using the description as wikitext and using the filename given as filename on Commons.
+    Given a description, file_location and filename this function uploads
+    the file at the file locationusing the description as wikitext and
+    using the filename given as filename on Commons.
     '''
     local_filepath, headers = urllib.request.urlretrieve(file_location)
     wiki_file_location = 'File:' + filename
     site = pywikibot.Site('commons', 'commons', user=username)
     page = pywikibot.FilePage(site, wiki_file_location)
     if page.exists():
-        return 'duplicate at https://commons.wikimedia.org/wiki/{loc}'.format(loc=wiki_file_location)
+        return 'duplicate at https://commons.wikimedia.org/wiki/{loc}'.format(
+            loc=wiki_file_location)
     else:
         try:
             if not site.upload(
-                page, source_filename=local_filepath, comment='Uploaded from ' + glam_name + " with g2c tool", text=description
+                page, source_filename=local_filepath, comment='Uploaded from ' + glam_name +
+                " with g2c tool", text=description
             ):
                 return None
-        except pywikibot.data.api.APIError as e:
+        except pywikibot.data.api.APIError:
             # recheck
             site.loadpageinfo(page)
             if not page.exists():
