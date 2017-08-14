@@ -105,6 +105,7 @@ class NationaalArchiefGLAM(GenericGLAM):
         else:
             return False
         return False
+        
     def get_infobox_parameters(self):
         """
         The function that performs the metadata-mapping from the parsed json already stored at self.data
@@ -193,7 +194,7 @@ class NationaalArchiefGLAM(GenericGLAM):
         """
         ids = []
         searchterm = searchterm.replace(" ", "+")
-        url = 'http://www.gahetna.nl/beeldbank-api/zoek/?q={search}'.format(search=searchterm)
+        url = 'http://www.gahetna.nl/beeldbank-api/zoek/?q={search}{count}'.format(search=searchterm, count='&count=100')
         parsed_json = load_from_url(url)
         docs = parsed_json['response']['docs']
         for doc in docs:
