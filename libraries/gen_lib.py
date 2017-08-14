@@ -14,18 +14,19 @@ from unidecode import unidecode
 
 
 def load_from_url(url):
-        """
-        Function which loads and parses the json from the database url.
-        Input is url with json, output is dictionary with the structure from the json
-        """
-        # TODO: Make this code work in both python2 and 3, now it works locally in 3
-        # and the py2 code is in nationaalarchief
-        try:
-            return json.loads(urllib2.urlopen(url).read().decode())
-        except Exception as e:
-            raise ValueError('Bad URL given ' + str(e))
+    """
+    Function which loads and parses the json from the database url.
+    Input is url with json, output is dictionary with the structure from the json
+    """
+    # TODO: Make this code work in both python2 and 3, now it works locally in 3
+    # and the py2 code is in nationaalarchief
+    try:
+        return json.loads(urllib2.urlopen(url).read().decode())
+    except Exception as e:
+        raise ValueError(str(e))
 
-def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_rawlength=90, order=[0,2,1], separator=' - '):
+
+def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_rawlength=90, order=[0, 2, 1], separator=' - '):
     '''
     Function to generate a standard title for the image to be uploaded
 
@@ -39,18 +40,15 @@ def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='', max_
     separator: character to separate the title elements with (including spaces if you want those)
     '''
     if len(glam_filetitle) > (max_rawlength-5):
-        #cut off the description if it's longer than 85 tokens at a space around 85.
+        # cut off the description if it's longer than 85 tokens at a space around 85.
         worktitle = glam_filetitle[:max_rawlength]
         cutposition = worktitle.rfind(' ')
-        if(cutposition > 20):	
+        if cutposition > 20:
             worktitle = re.sub('[:/#\[\]\{\}<>\|_]', '', unidecode(worktitle[:cutposition]))
     else:
         worktitle = re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(glam_filetitle))
     elements = [worktitle, image_id, glam_name]
-    filetitle = "{element0}{separat}{element1}{separat1}{element2}.{extension}".format(
-        element0=elements[order[0]], separat=separator,
-        element1=elements[order[1]], separat1=separator,
-        element2=elements[order[2]], extension=image_ext)
+    filetitle = ''.join(elements[order[0]], separator, elements[order[1]], separator, elements[order[2]], '.', image_ext)
 
     return filetitle
 
@@ -100,5 +98,4 @@ def upload_file(file_location, description, filename, username, glam_name):
             # recheck
             site.loadpageinfo(page)
             if not page.exists():
-                return str(e)
                 raise

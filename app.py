@@ -73,10 +73,13 @@ def receiveData():
                 obj = glam['class'](identifier)
                 if not obj == None:
                     wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
-                    result = upload_file(image_url, wikitext, wiki_filename, username, glam_name)
-                    if not result == None:
-                        return flask.render_template('error.html', error_msg = result)
-                    return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
+                    try:
+                        result = upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+                        if not result == None:
+                            return flask.render_template('error.html', error_msg = result)
+                        return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
+                    except Exception as e:
+                        return flask.render_template('error.html', error_msg = str(e))
                 else:
                     return flask.render_template('error.html', imageId=identifier)
                 break
