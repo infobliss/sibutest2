@@ -46,7 +46,7 @@ input[type=checkbox]
 
 <form action = "{{ url_for('multiUpload', glam = glam_name) }}" method="post">
   <center>
-    <label>Please select the images you want to upload </label>
+    <label>Please select the checkboxes of the images you want to upload </label>
   </center>
   
   {% for file in image_list %}

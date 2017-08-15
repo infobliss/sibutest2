@@ -34,7 +34,7 @@ class NationaalArchiefGLAM(GenericGLAM):
         try:
             self.data = load_from_url(self.url)
         except Exception:
-            raise 
+            raise ValueError("Invalid image id " + id) 
         self.parameters=wikitemplates.photograph_parameters
         if not self.license_checker():
             raise ValueError("Invalid license for the image") # no valid license
