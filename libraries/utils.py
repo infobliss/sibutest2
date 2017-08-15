@@ -94,22 +94,33 @@ def upload_file(file_location, description, filename, username, glam_name):
     the file at the file locationusing the description as wikitext and
     using the filename given as filename on Commons.
     '''
+    print(username)
     local_filepath, headers = urllib.request.urlretrieve(file_location)
     wiki_file_location = 'File:' + filename
     site = pywikibot.Site('commons', 'commons', user=username)
     page = pywikibot.FilePage(site, wiki_file_location)
     if page.exists():
-        return 'duplicate at https://commons.wikimedia.org/wiki/{loc}'.format(
-            loc=wiki_file_location)
+        raise ValueError('duplicate at https://commons.wikimedia.org/wiki/{loc}'.format(
+            loc=wiki_file_location))
     else:
         try:
             if not site.upload(
                 page, source_filename=local_filepath, comment='Uploaded from ' + glam_name +
                 " with g2c tool", text=description
             ):
-                return None
+                raise ValueError("Upload failed")
         except pywikibot.data.api.APIError:
             # recheck
             site.loadpageinfo(page)
             if not page.exists():
                 raise
+
+
+def get_glam_class(glam_list, glam_name):
+    '''
+    Function to return a class corresponding to the glam name given
+    '''
+    for glam in glam_list:
+        if glam['name'] == glam_name:
+            return glam['class']
+    return None

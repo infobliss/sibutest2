@@ -16,9 +16,9 @@
         }
         #container {
             position: relative;
-            width: 70%;
+            width: 74%;
             top: 30%;
-            left: 15%;
+            left: 13%;
             /*margin-top: -40px;
             margin-left: -170px;*/
             background: #fff;
@@ -90,13 +90,6 @@
             line-height:0.1em; margin:10px 0 20px; 
         } 
         h5 span { background:#fff; padding:0 10px; }
-
-        #close {
-          float:right;
-          display:inline-block;
-          padding:2px 5px;
-          background:#ccc;
-        }
        
     </style>
     {% if username %}
@@ -111,7 +104,7 @@
         <label>Upload a Single Image or Choose from a Gallery of Images by entering a Search Term</label>
         </center>
          <form action = "{{ url_for('receiveData') }}" method="post">               
-              <p>To upload one or multiple images first select a glam</p>
+              <p>To upload one or multiple images first select a GLAM</p>
               <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
                    <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
                    <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
@@ -150,16 +143,10 @@
                      function addInput()
                      {
                          var boxName="category"+count; 
-                         document.getElementById('response').innerHTML+='<div><span id="close" onclick="close()">x</span><p><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p></div>';
+                         document.getElementById('response').innerHTML+='<p><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p>';
                          count += 1;
                      }
                      
-                    function close(){
-                        this.parentNode.parentNode.parentNode
-                        .removeChild(this.parentNode.parentNode);
-                        return false;
-                      };
-                    };
               </script>            
             <div id="lower">
                <center>
@@ -175,7 +162,7 @@
       <div> 
         <form method="get" action="{{ url_for('login') }}">
           <center>
-           <input class="btn btn-primary btn-md" value="Login to Wikimedia Commons" type="submit">
+           <input class="btn btn-primary btn-md" value="Login with Wikimedia Commons" type="submit">
           </center>
         </form>
       </div>

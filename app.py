@@ -7,6 +7,7 @@ import pywikibot
 from glamFullList import list_of_glams as glam_list
 from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
 from glams.AmsterdamMuseumGLAM import AmsterdamMuseumGLAM
+import libraries.utils as utils
 from libraries.utils import upload_file
 
 app = flask.Flask(__name__)
@@ -58,46 +59,40 @@ def receiveData():
     identifier = flask.request.form['unique_id']
     category1 = flask.request.form['categories']
     categories = [category1]
+    # if both searchstring and identifier are empty
     if not (searchstring or identifier):
         return flask.render_template('index.html', username=username)
-    elif not searchstring:      # if searchstring is empty
+    # only identifier is given, if searchstring is empty
+    elif not searchstring:      
         f = flask.request.form
         for key in f.keys():
             if 'category' in key:
                 categories.append(flask.request.form[key])
-
     # instantiate a proper GLAM class object which in turn instantiates
     # a GenericGLAM class object to form the wikitext
-        for glam in glam_list:
-            if glam['name'] == glam_name:
-                obj = glam['class'](identifier)
-                if not obj == None:
-                    wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
-                    try:
-                        result = upload_file(image_url, wikitext, wiki_filename, username, glam_name)
-                        if not result == None:
-                            return flask.render_template('error.html', error_msg = result)
-                        return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
-                    except Exception as e:
-                        return flask.render_template('error.html', error_msg = str(e))
-                else:
-                    return flask.render_template('error.html', imageId=identifier)
-                break
-
+        glam_class = utils.get_glam_class(glam_list, glam_name)
+        try:
+            obj = glam_class(identifier)
+            print(obj)
+            wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
+            upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+            return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
+        except Exception as e:
+            return flask.render_template('error.html', error_msg = str(e))
+    # if searchstring is non-empty
     else:
         # store the categories in the session to be accessed in /multiUpload
         if categories:
             flask.session['categories'] = categories
         # obtain the thumbs without instantiating any objects
-        for glam in glam_list:
-            if glam['name'] == glam_name:
-                ids = glam['class'].search_to_identifiers(searchstring)
-                image_list = []
-                for id in ids:
-                    image_loc = glam['class'].get_thumbnail(id)
-                    image_list.append(image_loc)
-                prefix = glam['urlPrefix']
-                return flask.render_template('image_gallery.html', glam_name = glam['name'], uuid_list = ids,
+        glam_class = utils.get_glam_class(glam_list, glam_name)
+        ids = glam_class.search_to_identifiers(searchstring)
+        image_list = []
+        for id in ids:
+            image_loc = glam_class.get_thumbnail(id)
+            image_list.append(image_loc)
+        prefix = glam_class.url_prefix
+        return flask.render_template('image_gallery.html', glam_name = glam_class.name, uuid_list = ids,
                  image_list = image_list, prefix = prefix)
 
 
@@ -108,15 +103,18 @@ def multiUpload():
     username = flask.session.get('username', None)
     f = flask.request.form
     ids = f.getlist('selected')
-    wiki_filename_list = []
-    for glam in glam_list:
-        if glam['name'] == glam_name:
-            for identifier in ids:
-                obj = glam['class'](identifier)
-                if not obj == None:
-                    wiki_filename, wikitext, image_url = obj.generate_image_information()
-                    upload_file(image_url, wikitext, wiki_filename, username, glam_name)
-    return flask.render_template('results.html', username = username, filenames = wiki_filename_list)
+    glam_class = utils.get_glam_class(glam_list, glam_name)
+    error_msg_list = []
+    for identifier in ids:
+        obj = glam_class(identifier)
+        if not obj == None:
+            wiki_filename, wikitext, image_url = obj.generate_image_information()
+            try:
+                upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+            except Exception as e:
+                error_msg_list.append(str(e))
+                pass
+    return flask.render_template('results.html', username = username, duplicate_list = error_msg_list)
 
 
 @app.route('/oauth-callback')
@@ -145,7 +143,6 @@ def oauth_callback():
         username = flask.session.get('username', None)
 
     return flask.render_template('index.html', username=username)
-    # return flask.redirect(flask.url_for('index'))
 
 
 @app.route('/help_page')

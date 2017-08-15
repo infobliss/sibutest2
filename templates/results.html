@@ -7,10 +7,10 @@
 
 {% block content %}
     
-    {% if uuid %}
+    {% if unique_id %}
     <div id=customtext>
         <center>
-            <p>The image with id "{{ uuid }}" from "{{glam_name}}" is now available in Wikimedia Commons!</p>
+            <p>The image with id "{{ unique_id }}" from "{{glam_name}}" is now available in Wikimedia Commons!</p>
             <p>Find the Wikimedia Commons link <a href="https://commons.wikimedia.org/wiki/File:{{filename}}" target="_blank">here</a></p>
         </center>
     </div>
@@ -19,9 +19,17 @@
         <center>
             <p>The selected images are now available in Wikimedia Commons! Duplicates are ignored!</p>
             <p>Find the images in Wikimedia Commons <a href="https://commons.wikimedia.org/w/index.php?title=Special:ListFiles/{{username}}" target="_blank">here</a></p>
+            <p>Duplicate files found in Commons (if any) are listed below:<p>
         </center>
     </div>
-    {% endif %}    
+    {% for duplicate in duplicate_list %}
+        <div id=customtext>
+        <center>
+            <p>{{duplicate}}</p>
+        </center>
+    </div>
+    {% endfor %}
+    {% endif %}
 
 {% endblock %}
 

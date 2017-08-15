@@ -9,7 +9,7 @@ from unidecode import unidecode
 from xml.dom import minidom
 import json
 import re
-import libraries.gen_lib as library
+import libraries.utils as library
 import libraries.infobox_templates as wikitemplates
 try:
     import urllib.request as urllib2
@@ -31,13 +31,17 @@ class NationaalArchiefGLAM(GenericGLAM):
         """
         self.uuid = self.extractUUID(id)
         self.url = 'http://www.gahetna.nl/beeldbank-api/zoek/{uuid}'.format(uuid=self.uuid)
-        self.data = load_from_url(self.url)
+        try:
+            self.data = load_from_url(self.url)
+        except Exception:
+            raise 
         self.parameters=wikitemplates.photograph_parameters
         if not self.license_checker():
-            return None # no valid license
+            raise ValueError("Invalid license for the image") # no valid license
         self.image_url = None
         self.categories = []
         self.categories.append('Images from Nationaal Archief')
+        print("categories init")
         self.title = None
 
     def extractUUID(self, id):

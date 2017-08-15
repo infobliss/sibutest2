@@ -25,18 +25,25 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         initializer which should receive a priref or url with priref (unique identifier for an object/image)
         """
         self.url=self.priref_to_url(priref)
-        if self.url is False:
-            return None # Not a correctly formatted identifier
-        self.data = self.load_from_url()
-        if not self.parse_data():  # self.parse_data() changes the self.data object if there is data on the object
-            return None # can't find any data on the object
-        if not self.license_checker():
-            return None # no valid license
-        self.parameters=wikitemplates.art_photo_parameters
-        self.image_url = None
-        self.categories = []
-        self.categories.append('Images from the Amsterdam Museum')
-        self.title = None
+        if not self.url == False:
+            #a correctly formatted identifier
+            self.data = self.load_from_url()
+            if self.parse_data():  # self.parse_data() changes the self.data object if there is data on the object
+                # finds data on the object
+                if self.license_checker():
+                    # valid license
+                    self.parameters=wikitemplates.art_photo_parameters
+                    self.image_url = None
+                    self.categories = []
+                    self.categories.append('Images from the Amsterdam Museum')
+                    self.title = None
+                else:
+                    raise ValueError("Invalid license for the image")
+            else:
+                raise ValueError("No data found on the object")
+        else:
+            raise ValueError("Invalid image id " + str(priref))
+
 
     def generate_image_information(self, categories=[]):
         """
