@@ -9,7 +9,7 @@
 <style>
 div.gallery {
     position: relative;
-    margin: 3px;
+    margin: 13px;
     border: 1px solid #ccc;
     float: left;
     height: 150px;
@@ -30,16 +30,25 @@ div.desc {
     padding: 10px;
     text-align: center;
 }
+
+input[type=checkbox]
+{
+  /* 1.5-times larger Checkboxes */
+  -ms-transform: scale(1.3); /* IE */
+  -moz-transform: scale(1.3); /* FF */
+  -webkit-transform: scale(1.3); /* Safari and Chrome */
+  -o-transform: scale(1.3); /* Opera */
+  padding-right: 5px;
+}
 </style>
 
 <span style="display:inline-block; width: 30px;"></span>
 
 <form action = "{{ url_for('multiUpload', glam = glam_name) }}" method="post">
-  <div id=customtext>
-    <center>
-      <h3>Please select the images you want to upload </h3>
-    </center>
-  </div>
+  <center>
+    <label>Please select the images you want to upload </label>
+  </center>
+  
   {% for file in image_list %}
   <div id="gallery" class="gallery">
     <a target="_blank" href="{{prefix + uuid_list[loop.index - 1]}}">
