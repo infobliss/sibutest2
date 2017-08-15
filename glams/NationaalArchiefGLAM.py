@@ -22,7 +22,8 @@ from libraries.gen_lib import load_from_url
 
 
 class NationaalArchiefGLAM(GenericGLAM):
-    glam_name = 'Nationaal Archief'
+    name = 'Nationaal Archief'
+    url_prefix = 'http://proxy.handle.net/10648/'
 
     def __init__(self, id):
         """
@@ -66,7 +67,8 @@ class NationaalArchiefGLAM(GenericGLAM):
         image_id = self.data['doc']['Bestanddeelnummer'][0]
         infobox = wikitemplates.photograph_template.format(**self.parameters)
         wikitext = library.page_generator(infobox, self.categories, wikilicense=self.parameters['license'])
-        self.title = library.file_title_generator(self.parameters['title'], image_id, 'jpg', 'NA', order=[0,1,2])
+        self.title = library.file_title_generator(self.parameters['title'], image_id, 'jpg', 'NA', 
+                                                    order=['title', 'glam', 'id'])
         return self.title, wikitext, self.image_url
 
     @classmethod

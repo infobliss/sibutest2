@@ -17,6 +17,9 @@ from libraries.GenericGLAM import GenericGLAM
 
 class AmsterdamMuseumGLAM(GenericGLAM):
     
+    name = 'Amsterdam Museum'
+    url_prefix = 'http://hdl.handle.net/11259/collection.'
+
     def __init__(self, priref):
         """
         initializer which should receive a priref or url with priref (unique identifier for an object/image)
@@ -49,7 +52,8 @@ class AmsterdamMuseumGLAM(GenericGLAM):
 
         infobox = wikitemplates.art_photo_template.format(**self.parameters)
         wikitext = library.page_generator(infobox, self.categories, license_in_infobox=True)
-        self.title = library.file_title_generator(self.parameters['title'], self.data['priref'][0], 'jpg', 'AM', order=[0,1,2])
+        self.title = library.file_title_generator(self.parameters['title'], self.data['priref'][0], 'jpg',
+                                                    'AM', order=['title', 'glam', 'id'])
         return self.title, wikitext, self.image_url
 
     def priref_to_url(self, priref):
@@ -199,8 +203,9 @@ class AmsterdamMuseumGLAM(GenericGLAM):
                 makertext += (' (' + maker['creator.date_of_birth'][0] + ' - ' + maker['creator.date_of_death'][0] + ')')
             if maker['creator.qualifier'][0] != '':
                 makertext += (' ({{nl|' + maker['creator.qualifier'][0] + '}})')
-            if maker['creator.role'][0] != '':
-                makertext += (' ({{nl|' + maker['creator.role'][0] + '}})')
+            if 'creator.role' in maker:
+                if maker['creator.role'][0] != '':
+                    makertext += (' ({{nl|' + maker['creator.role'][0] + '}})')
             first=False
         return makertext
 
