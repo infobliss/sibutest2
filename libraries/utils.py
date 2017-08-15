@@ -121,6 +121,6 @@ def get_glam_class(glam_list, glam_name):
     Function to return a class corresponding to the glam name given
     '''
     for glam in glam_list:
-        if glam['name'] == glam_name:
+        if glam['class'].name == glam_name:
             return glam['class']
     return None
