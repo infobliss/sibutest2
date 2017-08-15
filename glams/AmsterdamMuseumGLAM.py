@@ -11,7 +11,7 @@ except ImportError:
 
 sys.path.append("..")
 import libraries.infobox_templates as wikitemplates
-import libraries.gen_lib as library
+import libraries.utils as library
 from libraries.GenericGLAM import GenericGLAM
 
 

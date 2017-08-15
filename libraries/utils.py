@@ -27,7 +27,8 @@ def load_from_url(url):
 
 
 def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='',
-                        max_rawlength=90, order=[0, 2, 1], separator=' - '):
+                        max_rawlength=90, order=['title', 'glam', 'id'],
+                        separator=' - '):
     '''
     Function to generate a standard title for the image to be uploaded
 
@@ -37,29 +38,36 @@ def file_title_generator(glam_filetitle, image_id, image_ext, glam_name='',
     glam_name: the name of the glam (preferably an abbreviation)
     max_rawlength: the maximum length of the glam_filetitle which will be used,
         an attempt is made to crop at a nice location.
-    order: the order in which the parameters (glam_filetitle=0, image_id=1, glam_name=2), will be used
-    separator: character to separate the title elements with (including spaces if you want those)
+    order: the order in which the parameters
+        (glam_filetitle=0, image_id=1, glam_name=2) will be used
+    separator: character to separate the title elements with
+        (including spaces if you want those)
     '''
     if len(glam_filetitle) > (max_rawlength-5):
-        # cut off the description if it's longer than 85 tokens at a space around 85.
+        # cut off the description if it's longer than 85 tokens
+        # at a space around 85.
         worktitle = glam_filetitle[:max_rawlength]
         cutposition = worktitle.rfind(' ')
         if cutposition > 20:
             worktitle = re.sub('[:/#\[\]\{\}<>\|_]', '', unidecode(worktitle[:cutposition]))
     else:
         worktitle = re.sub('[:/#\[\]\{\}<>\|_;\?]', '', unidecode(glam_filetitle))
-    elements = [worktitle, image_id, glam_name]
-    filetitle = ''.join(elements[order[0]], separator, elements[order[1]],
-                separator, elements[order[2]], '.', image_ext)
-
+    elements = {
+        'title': worktitle, 
+        'id' : image_id, 
+        'glam' : glam_name
+    }
+    filetitle = separator.join(elements[elmt] for elmt in order)
+    filetitle += '.' + image_ext
     return filetitle
 
 
 def page_generator(infobox, categories, wikilicense='', license_in_infobox=False):
     '''
-    This function expects a filled infobox, a license-template and a set of categories and
-    forms this into a wikitext image_description.
-    if License_in_infobox=True then the license is in the infobox and no license is givens
+    This function expects a filled infobox, a license-template and a set of 
+    categories and forms this into a wikitext image_description.
+    if License_in_infobox=True then the license is in the infobox and no
+    license is givens
     '''
     pagetemplate = '''\
 =={{{{int:filedesc}}}}==

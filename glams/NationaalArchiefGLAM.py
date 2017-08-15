@@ -18,7 +18,7 @@ except ImportError:
 
 from libraries.GenericGLAM import GenericGLAM
 from libraries.infobox_templates import photograph_parameters
-from libraries.gen_lib import load_from_url
+from libraries.utils import load_from_url
 
 
 class NationaalArchiefGLAM(GenericGLAM):

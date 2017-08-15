@@ -7,7 +7,7 @@ import pywikibot
 from glamFullList import list_of_glams as glam_list
 from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
 from glams.AmsterdamMuseumGLAM import AmsterdamMuseumGLAM
-from libraries.gen_lib import upload_file
+from libraries.utils import upload_file
 
 app = flask.Flask(__name__)
 
