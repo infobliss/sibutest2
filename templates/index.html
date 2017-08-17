@@ -72,12 +72,10 @@
 
       
         .gap-vertical {
-          margin-top: 50 px
+          margin-top: 40px;
           margin-bottom: 20px;
           padding-left: 40px;
         }
-       
-        .rightside { color: #2a4b8d; float:right }
 
         #dropdown{
             padding-left: 10px;
@@ -166,7 +164,7 @@
 
 
       {% else %}
-      <div> 
+      <div class="gap-vertical"> 
         <form method="get" action="{{ url_for('login') }}">
 
           <p class="gap-vertical">Login to upload images from the rich repositories of famous GLAMs to Wikimedia Commons</p>
@@ -174,10 +172,12 @@
            <input class="btn btn-primary btn-md" value="Login with Wikimedia Commons" type="submit">
           </center>
         </form>
+      </div>
+      <div class="gap-vertical">
           <p class="gap-vertical">We support the GLAMs below.</p>
           <ul>          
             <li><a href="http://www.gahetna.nl" target="_blank">Nationaal Archief, The Netherlands</a></li>
-            <li><a href="http://am.adlibhosting.com" target="_blank">Amsterdam Museum, The Netherlands</a></li>
+            <li><a href="http://am.adlibhosting.com" target="_blank">Amsterdam Museum, The Netherlands</a>  </li>
           </ul>  
       </div>
       {% endif %}

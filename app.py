@@ -92,8 +92,8 @@ def receiveData():
             image_loc = glam_class.get_thumbnail(id)
             image_list.append(image_loc)
         prefix = glam_class.url_prefix
-        return flask.render_template('image_gallery.html', glam_name = glam_class.name, uuid_list = ids,
-                 image_list = image_list, prefix = prefix)
+        return flask.render_template('image_gallery.html', glam_name=glam_class.name, uuid_list=ids,
+                 image_list=image_list, prefix=prefix, username=username)
 
 
 @app.route('/multiUpload', methods=['POST'])
