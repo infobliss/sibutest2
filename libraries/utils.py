@@ -123,4 +123,4 @@ def get_glam_class(glam_list, glam_name):
     for glam in glam_list:
         if glam['class'].name == glam_name:
             return glam['class']
-    return None
+    raise ValueError("GLAM not found")
