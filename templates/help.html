@@ -6,29 +6,20 @@
 {% endblock %}
 
 {% block content %}
-    <style>
-    #customtext {
-            background: #ecf2f5;
-            width: 100%;
-            font-family: "Lato", sans-serif;
-            color: #286090;
-            font-size: 20px;
-            padding-left: 25px;
-            margin-top: 30px;
-            border-top: 1px solid #ccc;
-            border-bottom-right-radius: 3px;
-            border-bottom-left-radius: 3px;
-        }
-    </style>
 
     <div id=customtext>
         <center>
-            <h3>Nationaal Archief : Finding Unique ID of image</h3>
+            <h3>How to use the tool</h3>
         </center>
-        <p>Sample URL: <a href="http://proxy.handle.net/10648/a9deaf60-d0b4-102d-bcf8-003048976d84">http://proxy.handle.net/10648/a9deaf60-d0b4-102d-bcf8-003048976d84</a></p>
-        <p>The UID for the above image is the last part of the URL which is a hex value, i.e., a9deaf60-d0b4-102d-bcf8-003048976d84</p>
-        <p>Sample URL: http://www.gahetna.nl/collectie/afbeeldingen/fotocollectie/zoeken/weergave/detail/q/id/a8ae2b8e-d0b4-102d-bcf8-003048976d84<p>
-        <p>The UID for the above image is the last part of the URL which is a hex value, i.e., a8ae2b8e-d0b4-102d-bcf8-003048976d84</p>
-        <p>Note: Some images may be copyright protected hence the GLAM API will not allow those images to upload to Commons.<p>
+        <p>Step 1: Login with Wikimedia Commons.</p>
+        <p>Step 2: Choose the GLAM from the dropdown.</p>
+        <p>Step 3.a: Enter the Unique ID of the image if known.</p>
+        <p>Step 3.b: Or enter a Search Term.</p>
+        <p>Step 4: Hit "Upload or See Image Gallery" button</p>
+        <p>Step 5: If you have entered a search string then you will see an image gallery. Choose the images you want 
+        to upload and hit "Upload to Commons" button</p>
+        <p>The image/images will be uploaded to Wikimedia Commons and you will be displayed their location in Wikimedia Commons. To do another upload click on the "Home" menu.</p>
+        <hr>
+        <p>Note: Some images may be copyright protected hence the tool will not allow those images to upload to Commons.<p>
     </div>
 {% endblock %}
