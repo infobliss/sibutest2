@@ -42,11 +42,9 @@ input[type=checkbox]
 }
 </style>
 
-<span style="display:inline-block; width: 30px;"></span>
 <div id=customtext>
     <span>Hello {{ username }}!</span>
     <p class="rightside glyphicon glyphicon-log-out"><a href="{{ url_for('logout') }}">Logout</a></p>
-    <hr>
 </div>
 <form action = "{{ url_for('multiUpload', glam = glam_name) }}" method="post">
   <center>
