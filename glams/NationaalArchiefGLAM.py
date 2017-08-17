@@ -87,11 +87,11 @@ class NationaalArchiefGLAM(GenericGLAM):
         images = data["doc"]["images"]
         [(key, URLvalues)] = images.items()
         res_min = 20000
-        for image in URLvalues:
-            res = re.findall(r'(\d+)x\d+/', image["url"])
+        for [(key, URLvalues)] in images.items():
+            res = re.findall(r'(\d+)x\d+/', URLvalues["url"])
             if(int(res[0]) < res_min):
                 res_min = int(res[0])
-                thumb_url = image["url"]
+                thumb_url = URLvalues["url"]
         return thumb_url
 
     def license_checker(self):
@@ -192,7 +192,7 @@ class NationaalArchiefGLAM(GenericGLAM):
         return True
 
     @classmethod
-    def search_to_identifiers(cls, searchterm):        
+    def search_to_identifiers(cls, searchterm, no_of_files=100):        
         """
         A classmethod to obtains the identifiers of images from a given search string
         Takes the search string as input
@@ -200,7 +200,7 @@ class NationaalArchiefGLAM(GenericGLAM):
         """
         ids = []
         searchterm = searchterm.replace(" ", "+")
-        url = 'http://www.gahetna.nl/beeldbank-api/zoek/?q={search}{count}'.format(search=searchterm, count='&count=100')
+        url = 'http://www.gahetna.nl/beeldbank-api/zoek/?q={search}&count={count}'.format(search=searchterm, count=no_of_files)
         parsed_json = load_from_url(url)
         docs = parsed_json['response']['docs']
         for doc in docs:
