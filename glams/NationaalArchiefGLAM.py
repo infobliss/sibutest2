@@ -85,8 +85,9 @@ class NationaalArchiefGLAM(GenericGLAM):
         url = 'http://www.gahetna.nl/beeldbank-api/zoek/{uuid}'.format(uuid=id)
         data = load_from_url(url)
         images = data["doc"]["images"]
+        keys = list(images)
         # take the first image if more than one images are given by the identifier
-        [(key, URLvalues)] = images[0].items()
+        URLvalues = images[keys[0]]
         res_min = 20000
         for image in URLvalues:
             res = re.findall(r'(\d+)x\d+/', image["url"])

@@ -4,165 +4,161 @@
   {{ super() }}
 {% endblock %}
 {% block content %}      
-    <style>
-        /* Basics */
-        html, body {
-            width: 100%;
-            height: 100%;
-            font-family: "Helvetica Neue", Helvetica, sans-serif;
-            color: #444;
-            -webkit-font-smoothing: antialiased;
-            background: #f0f0f0;
+  <style>
+    /* Basics */
+    html, body {
+        width: 100%;
+        height: 100%;
+        font-family: "Helvetica Neue", Helvetica, sans-serif;
+        color: #444;
+        -webkit-font-smoothing: antialiased;
+        background: #f0f0f0;
         }
-        #container {
-            position: relative;
-            width: 74%;
-            top: 30%;
-            left: 13%;
-            /*margin-top: -40px;
-            margin-left: -170px;*/
-            background: #fff;
-            border-radius: 3px;
-            border: 1px solid #ccc;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
+    #container {
+        position: relative;
+        width: 74%;
+        top: 30%;
+        left: 13%;
+        /*margin-top: -40px;
+        margin-left: -170px;*/
+        background: #fff;
+        border-radius: 3px;
+        border: 1px solid #ccc;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, .1);
         }
-        #result, 
-        #sampleUrl {
-           font-family: "Lato", sans-serif;
-           color:#286090;
-           text-align: center; 
-           margin-bottom: 2px;
+    #result, 
+    #sampleUrl {
+        font-family: "Lato", sans-serif;
+        color:#286090;
+        text-align: center; 
+        margin-bottom: 2px;
         }
-        form {
-            margin: 0 auto;
-            margin-top: 20px;
+    form {
+        margin: 0 auto;
+        margin-top: 20px;
         }
-        input {
-            font-family: "Helvetica Neue", Helvetica, sans-serif;
-            font-size: 12px;
-            outline: none;
+    input {
+        font-family: "Helvetica Neue", Helvetica, sans-serif;
+        font-size: 12px;
+        outline: none;
         }
-        input[type=text],
-        input[type=password] ,input[type=time]{
-            color: #777;
-            padding-left: 10px;
-            margin: 10px;
-            margin-top: 2px;
-            margin-left: 0px;
-            margin-bottom: 15px;
-            width: 600px;
-            height: 35px;
-            border: 1px solid #c7d0d2;
-            border-radius: 2px;
-            box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #f5f7f8;
-            -webkit-transition: all .4s ease;
-            -moz-transition: all .4s ease;
-            transition: all .4s ease;
-            }
-        input[type=text]:hover,
-        input[type=password]:hover,input[type=time]:hover {
-            border: 1px solid #b6bfc0;
-            box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .7), 0 0 0 5px #f5f7f8;
+    input[type=text],
+    input[type=password] ,input[type=time]{
+        color: #777;
+        padding-left: 10px;
+        margin: 10px;
+        margin-top: 2px;
+        margin-left: 0px;
+        margin-bottom: 15px;
+        width: 600px;
+        height: 35px;
+        border: 1px solid #c7d0d2;
+        border-radius: 2px;
+        box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #f5f7f8;
+        -webkit-transition: all .4s ease;
+        -moz-transition: all .4s ease;
+        transition: all .4s ease;
         }
-        input[type=text],
-        input[type=password]:focus,input[type=time]:focus {
-            border: 1px solid #a8c9e4;
-            box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #e6f2f9;
+    input[type=text]:hover,
+    input[type=password]:hover,input[type=time]:hover {
+        border: 1px solid #b6bfc0;
+        box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .7), 0 0 0 5px #f5f7f8;
         }
-
-      
-        .gap-vertical {
-          margin-top: 40px;
-          margin-bottom: 20px;
-          padding-left: 40px;
+    input[type=text],
+    input[type=password]:focus,input[type=time]:focus {
+        border: 1px solid #a8c9e4;
+        box-shadow: inset 0 1.5px 3px rgba(190, 190, 190, .4), 0 0 0 5px #e6f2f9;
         }
-
-        #dropdown{
-            padding-left: 10px;
-            margin-left: 0px;
-            margin-bottom: 10px;
-            width:550px;   
-            text-align-last:center;
+    .gap-vertical {
+        margin-top: 40px;
+        margin-bottom: 20px;
+        padding-left: 40px;
         }
-
-        select .ct { padding-left: 10px; text-align-last:center; }
-
-        p { color: #2a4b8d; padding-left: 80px;}
-
-        h5 {
-            color: #2a4b8d; width:100%; padding-left: 10px; border-bottom: 1px solid #000; 
-            line-height:0.1em; margin:10px 0 20px; 
+    .neg-space {padding-left: 80px}
+    #dropdown{
+        padding-left: 10px;
+        margin-left: 0px;
+        margin-bottom: 10px;
+        width:550px;   
+        text-align-last:center;
+        }
+    select .ct { padding-left: 10px; text-align-last:center; }
+    p { color: #2a4b8d; padding-left: 40px;}
+    h5 {
+        color: #2a4b8d; width:100%; padding-left: 10px; border-bottom: 1px solid #000; 
+        line-height:0.1em; margin:10px 0 20px; 
         } 
-        h5 span { background:#fff; padding:0 10px; }
+    h5 span { background:#fff; padding:0 10px; }
        
-    </style>
-    {% if username %}
-     <div id=customtext>
+  </style>
+  {% if username %}
+    <div id=customtext>
         <span>Hello {{ username }}!</span>
-        <p class="rightside glyphicon glyphicon-log-out"><a href="{{ url_for('logout') }}">Logout</a></p>
-     </div>
+        <a href="{{ url_for('logout') }}">
+        <p class="rightside glyphicon glyphicon-log-out">Logout</p></a>
+    </div>
      <div><hr></div>  
      <!-- Begin Page Content -->
-     <div id="container">
+    <div id="container">
       <center>
         <label>Upload a Single Image or Choose from a Gallery of Images by entering a Search Term</label>
-        </center>
-         <form action = "{{ url_for('receiveData') }}" method="post">               
-              <p>To upload one or multiple images first select a GLAM</p>
-              <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
-                   <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
-                   <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
-                   <option class="ct" value="Amsterdam Museum">Amsterdam Museum</option>
-                 </select>
-              </p>
-              <div id="result"></div> 
-              <p>Either enter a URL/Unique ID to upload a single file or enter a Search Term to search for multiple files</p>
-              <p><input type="text" name='unique_id'  placeholder="URL/Unique ID of image (ignored if Search Term is given)"></p>
-              <div id="sampleUrl"></div>
-              <p><input type="text" name='searchstring' placeholder="Search Term (for multiple image upload)"></p>
-              <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
-              <p>&nbsp;&nbsp;Add another category&nbsp;
-              <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
-                   <span id="response"</span>
-              </p>
-              <script type="text/javascript">
-                  function dropdownTip(value){
-                      switch(value) {
-                        case "Nationaal Archief": 
-                          document.getElementById("result").innerHTML = '<p><a href="https://commons.wikimedia.org/w/index.php?title=Special:ListFiles/{{username}}" target="_blank"><a href="http://www.gahetna.nl" target="_blank">The national archive of the Netherlands, located in The Hague</a></p>';
-                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: <a href="http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84" target="_blank">http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84</a></p><p>Sample Unique ID: aa704164-d0b4-102d-bcf8-003048976d84</p>';
-                          break;
-                        case "Amsterdam Museum":
-                          document.getElementById("result").innerHTML = '<p><a href="http://am.adlibhosting.com" target="_blank">The Amsterdam Museum is a museum about the history of Amsterdam</a></p>';
-                          document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: <a href="http://hdl.handle.net/11259/collection.5782" target="_blank">http://hdl.handle.net/11259/collection.5782</a></p>';
-                          break;
-                        default:
-                          document.getElementById("result").innerHTML = '<p>'+value+'</p>';
-                      }
-                  }
-              </script>
-              <script>
-                     var count =2;
-                     var boxName = 0;
-                     function addInput()
-                     {
-                         var boxName="category"+count; 
-                         document.getElementById('response').innerHTML+='<p><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p>';
-                         count += 1;
-                     }
+      </center>
+      <form action = "{{ url_for('receiveData') }}" method="post">               
+        <p>To upload one or multiple images first select a GLAM</p>
+        <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
+            <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
+            <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
+            <option class="ct" value="Amsterdam Museum">Amsterdam Museum</option>
+            </select>
+        </p>
+      <div id="result"></div> 
+        <p>Either enter a URL/Unique ID to upload a single file or enter a Search Term to search for multiple files</p>
+        <p><input type="text" name='unique_id'  placeholder="URL/Unique ID of image (ignored if Search Term is given)">
+        </p>
+      <div id="sampleUrl"></div>
+        <p><input type="text" name='searchstring' placeholder="Search Term (for multiple image upload)"></p>
+        <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
+        <p>&nbsp;&nbsp;Add another category&nbsp;
+        <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
+          <span id="response"</span>
+        </p>
+        <script type="text/javascript">
+          function dropdownTip(value){
+            switch(value) {
+              case "Nationaal Archief": 
+                document.getElementById("result").innerHTML = '<p><a href="https://commons.wikimedia.org/w/index.php?title=Special:ListFiles/{{username}}" target="_blank"><a href="http://www.gahetna.nl" target="_blank">The national archive of the Netherlands, located in The Hague</a></p>';
+                document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: <a href="http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84" target="_blank">http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84</a></p><p>Sample Unique ID: aa704164-d0b4-102d-bcf8-003048976d84</p>';
+                break;
+              case "Amsterdam Museum":
+                document.getElementById("result").innerHTML = '<p><a href="http://am.adlibhosting.com" target="_blank">The Amsterdam Museum is a museum about the history of Amsterdam</a></p>';
+                document.getElementById("sampleUrl").innerHTML = '<p>Sample URL: <a href="http://hdl.handle.net/11259/collection.5782" target="_blank">http://hdl.handle.net/11259/collection.5782</a></p>';
+                break;
+              default:
+                document.getElementById("result").innerHTML = '<p>'+value+'</p>';
+            }
+          }
+        </script>
+        <script>
+          var count =2;
+          var boxName = 0;
+          function addInput()
+          {
+            var boxName="category"+count; 
+            document.getElementById('response').innerHTML+='<p"><input type="text" name="'+ boxName +'" placeholder="'+ boxName +'"></p>';
+            count += 1;
+          }
                      
-              </script>            
-            <div id="lower">
-               <center>
-                 <input class="btn btn-primary btn-md" type="submit" value="Upload or See Image Gallery"/>
-               </center>
-            </div><!--/ lower-->
-            </form>
-        </div><!--/ container-->
+        </script>            
+          <div id="lower">
+            <center>
+              <input class="btn btn-primary btn-md" type="submit" value="Upload or See Image Gallery"/>
+            </center>
+          </div><!--/ lower-->
+      </form>
+    </div><!--/ container-->
     <!-- End Page Content -->
 
-
-      {% else %}
+    {% else %}
       <div class="gap-vertical"> 
         <form method="get" action="{{ url_for('login') }}">
 
@@ -179,6 +175,5 @@
             <li><a href="http://am.adlibhosting.com" target="_blank">Amsterdam Museum, The Netherlands</a>  </li>
           </ul>  
       </div>
-      {% endif %}
+    {% endif %}
 {% endblock %}
-

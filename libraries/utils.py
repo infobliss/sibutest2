@@ -106,7 +106,7 @@ def upload_file(file_location, description, filename, username, glam_name):
         try:
             if not site.upload(
                 page, source_filename=local_filepath, comment='Uploaded from ' + glam_name +
-                " with g2c tool", text=description
+                " with glam2commons tool", text=description
             ):
                 raise ValueError("Upload failed")
         except pywikibot.data.api.APIError:
