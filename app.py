@@ -108,7 +108,7 @@ def multiUpload():
     for identifier in ids:
         obj = glam_class(identifier)
         if not obj == None:
-            wiki_filename, wikitext, image_url = obj.generate_image_information()
+            wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
             try:
                 upload_file(image_url, wikitext, wiki_filename, username, glam_name)
             except Exception as e:
