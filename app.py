@@ -5,8 +5,7 @@ import yaml
 from requests_oauthlib import OAuth1
 import pywikibot
 from glamFullList import list_of_glams as glam_list
-from glams.NationaalArchiefGLAM import NationaalArchiefGLAM
-from glams.AmsterdamMuseumGLAM import AmsterdamMuseumGLAM
+import glams
 import libraries.utils as utils
 from libraries.utils import upload_file
 
@@ -18,7 +17,6 @@ app.config.update(
     yaml.safe_load(open(os.path.join(__dir__, 'config.yaml'))))
 
 consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['CONSUMER_SECRET'])
-
 
 @app.route('/')
 def index():
@@ -90,40 +88,43 @@ def receiveData():
             print(obj)
             wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
             upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+            return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
+        except Exception as e:
+            return flask.render_template('error.html', error_msg = str(e))
+        finally:
             # cleaning up pywikibot
             pywikibot.stopme()
             pywikibot.config.authenticate.clear()
             pywikibot.config.usernames['commons'].clear()
             pywikibot._sites.clear()
-            return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
-        except Exception as e:
-            return flask.render_template('error.html', error_msg = str(e))
     else:
         return flask.render_template('index.html', username=username)
 
 @app.route('/multiUpload', methods=['POST'])
 def multiUpload():
-    glam_name = flask.request.args.get('glam', None)
-    categories = flask.session.get('categories')
-    username = flask.session.get('username', None)
-    f = flask.request.form
-    ids = f.getlist('selected')
-    glam_class = utils.get_glam_class(glam_list, glam_name)
-    error_msg_list = []
-    for identifier in ids:
-        obj = glam_class(identifier)
-        if not obj == None:
-            wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
-            try:
-                upload_file(image_url, wikitext, wiki_filename, username, glam_name)
-            except Exception as e:
-                error_msg_list.append(str(e))
-                pass
-    # cleaning up pywikibot
-    pywikibot.stopme()
-    pywikibot.config.authenticate.clear()
-    pywikibot.config.usernames['commons'].clear()
-    pywikibot._sites.clear()
+    try:
+        glam_name = flask.request.args.get('glam', None)
+        categories = flask.session.get('categories')
+        username = flask.session.get('username', None)
+        f = flask.request.form
+        ids = f.getlist('selected')
+        glam_class = utils.get_glam_class(glam_list, glam_name)
+        error_msg_list = []
+        for identifier in ids:
+            obj = glam_class(identifier)
+            if not obj == None:
+                wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
+                try:
+                    upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+                except Exception as e:
+                    error_msg_list.append(str(e))
+                    pass
+    finally:
+        # cleaning up pywikibot
+        pywikibot.stopme()
+        pywikibot.config.authenticate.clear()
+        pywikibot.config.usernames['commons'].clear()
+        pywikibot._sites.clear()
     return flask.render_template('results.html', username = username, duplicate_list = error_msg_list)
 
 
