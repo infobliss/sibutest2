@@ -85,13 +85,14 @@ class NationaalArchiefGLAM(GenericGLAM):
         url = 'http://www.gahetna.nl/beeldbank-api/zoek/{uuid}'.format(uuid=id)
         data = load_from_url(url)
         images = data["doc"]["images"]
-        [(key, URLvalues)] = images.items()
+        # take the first image if more than one images are given by the identifier
+        [(key, URLvalues)] = images[0].items()
         res_min = 20000
-        for [(key, URLvalues)] in images.items():
-            res = re.findall(r'(\d+)x\d+/', URLvalues["url"])
+        for image in URLvalues:
+            res = re.findall(r'(\d+)x\d+/', image["url"])
             if(int(res[0]) < res_min):
                 res_min = int(res[0])
-                thumb_url = URLvalues["url"]
+                thumb_url = image["url"]
         return thumb_url
 
     def license_checker(self):
