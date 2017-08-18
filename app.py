@@ -59,28 +59,14 @@ def receiveData():
     identifier = flask.request.form['unique_id']
     category1 = flask.request.form['categories']
     categories = [category1]
-    # if both searchstring and identifier are empty
-    if not (searchstring or identifier):
-        return flask.render_template('index.html', username=username)
-    # only identifier is given, if searchstring is empty
-    elif not searchstring:      
-        f = flask.request.form
-        for key in f.keys():
-            if 'category' in key:
-                categories.append(flask.request.form[key])
-    # instantiate a proper GLAM class object which in turn instantiates
-    # a GenericGLAM class object to form the wikitext
-        glam_class = utils.get_glam_class(glam_list, glam_name)
-        try:
-            obj = glam_class(identifier)
-            print(obj)
-            wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
-            upload_file(image_url, wikitext, wiki_filename, username, glam_name)
-            return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
-        except Exception as e:
-            return flask.render_template('error.html', error_msg = str(e))
+    # get other categories if more than one categories are gievn
+    f = flask.request.form
+    for key in f.keys():
+        if 'category' in key:
+            categories.append(flask.request.form[key])
+    
     # if searchstring is non-empty
-    else:
+    if searchstring:
         # store the categories in the session to be accessed in /multiUpload
         if categories:
             flask.session['categories'] = categories
@@ -94,7 +80,26 @@ def receiveData():
         prefix = glam_class.url_prefix
         return flask.render_template('image_gallery.html', glam_name=glam_class.name, uuid_list=ids,
                  image_list=image_list, prefix=prefix, username=username)
-
+    # if searchstring is empty but identifier is given
+    elif identifier:      
+    # instantiate a proper GLAM class object which in turn instantiates
+    # a GenericGLAM class object to form the wikitext
+        glam_class = utils.get_glam_class(glam_list, glam_name)
+        try:
+            obj = glam_class(identifier)
+            print(obj)
+            wiki_filename, wikitext, image_url = obj.generate_image_information(categories)
+            upload_file(image_url, wikitext, wiki_filename, username, glam_name)
+            # cleaning up pywikibot
+            pywikibot.stopme()
+            pywikibot.config.authenticate.clear()
+            pywikibot.config.usernames['commons'].clear()
+            pywikibot._sites.clear()
+            return flask.render_template('results.html', glam_name = glam_name, unique_id = identifier, filename = wiki_filename)
+        except Exception as e:
+            return flask.render_template('error.html', error_msg = str(e))
+    else:
+        return flask.render_template('index.html', username=username)
 
 @app.route('/multiUpload', methods=['POST'])
 def multiUpload():
@@ -114,6 +119,11 @@ def multiUpload():
             except Exception as e:
                 error_msg_list.append(str(e))
                 pass
+    # cleaning up pywikibot
+    pywikibot.stopme()
+    pywikibot.config.authenticate.clear()
+    pywikibot.config.usernames['commons'].clear()
+    pywikibot._sites.clear()
     return flask.render_template('results.html', username = username, duplicate_list = error_msg_list)
 
 
