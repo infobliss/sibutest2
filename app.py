@@ -4,8 +4,9 @@ import os
 import yaml
 from requests_oauthlib import OAuth1
 import pywikibot
-from glamFullList import list_of_glams as glam_list
+# from glamFullList import list_of_glams as glam_list
 import glams
+from glams import glam_list 
 import libraries.utils as utils
 from libraries.utils import upload_file
 
@@ -20,10 +21,10 @@ consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['C
 
 @app.route('/')
 def index():
-    greeting = app.config['GREETING']
+    glam_names = utils.get_glam_names(glam_list)
     username = flask.session.get('username', None)
     return flask.render_template(
-        'index.html', username=username, greeting=greeting)
+        'index.html', username=username, glam_list=glam_names)
 
 
 @app.route('/login')
@@ -43,7 +44,9 @@ def login():
 
 @app.route('/result', methods=['POST'])
 def receiveData():
-    # if request.method == 'POST':
+    glam_names = utils.get_glam_names(glam_list)
+    print(glam_list)
+    print("=======")
     username = flask.session.get('username', None)
     pywikibot.config.authenticate['commons.wikimedia.org'] = (
         app.config['CONSUMER_KEY'],
@@ -98,7 +101,7 @@ def receiveData():
             pywikibot.config.usernames['commons'].clear()
             pywikibot._sites.clear()
     else:
-        return flask.render_template('index.html', username=username)
+        return flask.render_template('index.html', username=username, glam_list=glam_names)
 
 @app.route('/multiUpload', methods=['POST'])
 def multiUpload():
@@ -131,7 +134,7 @@ def multiUpload():
 @app.route('/oauth-callback')
 def oauth_callback():
     """OAuth handshake callback."""
-
+    glam_names = utils.get_glam_names(glam_list)
     if 'request_token' not in flask.session:
         flask.flash(u'OAuth callback failed. Are cookies disabled?')
         return flask.redirect(flask.url_for('index'))
@@ -153,7 +156,7 @@ def oauth_callback():
         flask.session['username'] = identity['username']
         username = flask.session.get('username', None)
 
-    return flask.render_template('index.html', username=username)
+    return flask.render_template('index.html', username=username, glam_list=glam_names)
 
 
 @app.route('/help_page')
