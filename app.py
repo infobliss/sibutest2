@@ -72,16 +72,19 @@ def receiveData():
         # store the categories in the session to be accessed in /multiUpload
         if categories:
             flask.session['categories'] = categories
-        # obtain the thumbs without instantiating any objects
-        glam_class = utils.get_glam_class(glam_list, glam_name)
-        ids = glam_class.search_to_identifiers(searchstring)
-        image_list = []
-        for id in ids:
-            image_loc = glam_class.get_thumbnail(id)
-            image_list.append(image_loc)
-        prefix = glam_class.url_prefix
-        return flask.render_template('image_gallery.html', glam_name=glam_class.name, uuid_list=ids,
-                 image_list=image_list, prefix=prefix, username=username)
+        try:
+            # obtain the thumbs without instantiating any objects
+            glam_class = utils.get_glam_class(glam_list, glam_name)
+            ids = glam_class.search_to_identifiers(searchstring)
+            image_list = []
+            for id in ids:
+                image_loc = glam_class.get_thumbnail(id)
+                image_list.append(image_loc)
+            prefix = glam_class.url_prefix
+            return flask.render_template('image_gallery.html', glam_name=glam_class.name, uuid_list=ids,
+                     image_list=image_list, prefix=prefix, username=username)
+        except Exception as e:
+            return flask.render_template('error.html', error_msg = str(e))
     # if searchstring is empty but identifier is given
     elif identifier:      
     # instantiate a proper GLAM class object which in turn instantiates
