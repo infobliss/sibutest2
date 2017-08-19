@@ -16,14 +16,19 @@ try:
 except ImportError:
     import urllib2
 
+from glams import register_glam
 from libraries.GenericGLAM import GenericGLAM
 from libraries.infobox_templates import photograph_parameters
 from libraries.utils import load_from_url
 
 
+@register_glam
 class NationaalArchiefGLAM(GenericGLAM):
     name = 'Nationaal Archief'
+    brief_desc = 'The national archive of the Netherlands, located in The Hague'
     url_prefix = 'http://proxy.handle.net/10648/'
+    sample_url = 'http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84'
+    sample_id = 'aa704164-d0b4-102d-bcf8-003048976d84'
 
     def __init__(self, id):
         """

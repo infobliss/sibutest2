@@ -10,15 +10,20 @@ except ImportError:
     import urllib2
 
 sys.path.append("..")
+from glams import register_glam
 import libraries.infobox_templates as wikitemplates
 import libraries.utils as library
 from libraries.GenericGLAM import GenericGLAM
 
 
+@register_glam
 class AmsterdamMuseumGLAM(GenericGLAM):
     
     name = 'Amsterdam Museum'
+    brief_desc = 'The Amsterdam Museum is a museum about the history of Amsterdam'
     url_prefix = 'http://hdl.handle.net/11259/collection.'
+    sample_url = 'http://hdl.handle.net/11259/collection.5782'
+    sample_id = '5782'
 
     def __init__(self, priref):
         """
@@ -396,9 +401,10 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         return True
 
     @classmethod
-    def search_to_identifiers(cls, searchterm):
+    def search_to_identifiers(cls, searchterm, no_of_files=100):
         ids = []
-        searchstring = 'http://amdata.adlibsoft.com/wwwopac.ashx?database=AMcollect&q={search}&limit=100&output=json'.format(search=searchterm)
+        searchstring = 'http://amdata.adlibsoft.com/wwwopac.ashx?database=AMcollect&q={search}&limit={count}&output=json'.format(
+                                                                                                search=searchterm, count=no_of_files)
         results = library.load_from_url(searchstring)
         nr_of_results = int(results['adlibJSON']['diagnostic']['hits'])
         if nr_of_results == 0:
