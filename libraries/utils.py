@@ -119,8 +119,20 @@ def upload_file(file_location, description, filename, username, glam_name):
 def get_glam_class(glam_list, glam_name):
     '''
     Function to return a class corresponding to the glam name given
+    glam_list is a list of GLAM classes
+    glam_name is a string variable that is the name of the glam chosen
     '''
     for glam in glam_list:
-        if glam['class'].name == glam_name:
-            return glam['class']
+        if glam.name == glam_name:
+            return glam
     raise ValueError("GLAM not found")
+
+def get_glam_names(glam_list):
+    '''
+    Function to return the names of the GLAMs supported
+    glam_list is a list of GLAM classes
+    '''
+    glam_names = []
+    for glam in glam_list:
+        glam_names.append(glam.name)
+    return glam_names
