@@ -21,6 +21,7 @@ consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['C
 
 @app.route('/')
 def index():
+    # the list of names of the GLAMs
     glam_names = utils.get_glam_names(glam_list)
     username = flask.session.get('username', None)
     return flask.render_template(
