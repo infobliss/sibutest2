@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Sibu Index{% endblock %}
+{% block title %}Glam2Commons Index{% endblock %}
 {% block head %}
   {{ super() }}
 {% endblock %}
@@ -107,8 +107,9 @@
         <p>To upload one or multiple images first select a GLAM</p>
         <p><select id="dropdown" onChange="dropdownTip(this.value)"  name="glam_name" required value="">
             <option class="ct" value="" selected="selected" disabled>-- Choose GLAM --</option> 
-            <option class="ct" value="Nationaal Archief">Nationaal Archief</option>
-            <option class="ct" value="Amsterdam Museum">Amsterdam Museum</option>
+            {% for glam in glam_list %}
+            <option class="ct" value="{{glam}}">{{glam}}</option>
+            {% endfor %}
             </select>
         </p>
       <div id="result"></div> 
@@ -156,7 +157,7 @@
           </div><!--/ lower-->
           <div>
             <center>
-              <p>Please be patient while we look up the images</p>
+              <p>Please be patient after hitting this button while we look up the images</p>
             <center>
           </div>
       </form>
