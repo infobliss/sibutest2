@@ -74,7 +74,10 @@
         margin-bottom: 20px;
         padding-left: 40px;
         }
-    .neg-space {padding-left: 80px}
+    .element::-moz-placeholder {
+        color: 2a4b8d;
+        font-weight: bold;
+    }
     #dropdown{
         padding-left: 10px;
         margin-left: 0px;
@@ -120,7 +123,7 @@
         <p><input type="text" name='searchstring' placeholder="Search Term (for multiple image upload)"></p>
         <p><input type="text" name='categories' placeholder="Image Category (What kind of image is it?)"></p>
         <p>&nbsp;&nbsp;Add another category&nbsp;
-        <input type="button" value="Add" class="btn btn-default btn-sm" onclick="addInput()"/>
+        <input type="button" value="Add" class="glyphicon glyphicon-plus-sign" onclick="addInput()"/>
           <span id="response"</span>
         </p>
         <script type="text/javascript">

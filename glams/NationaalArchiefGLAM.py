@@ -26,6 +26,7 @@ from libraries.utils import load_from_url
 class NationaalArchiefGLAM(GenericGLAM):
     name = 'Nationaal Archief'
     brief_desc = 'The national archive of the Netherlands, located in The Hague'
+    home_url = 'http://www.gahetna.nl'
     url_prefix = 'http://proxy.handle.net/10648/'
     sample_url = 'http://proxy.handle.net/10648/aa704164-d0b4-102d-bcf8-003048976d84'
     sample_id = 'aa704164-d0b4-102d-bcf8-003048976d84'
@@ -60,7 +61,7 @@ class NationaalArchiefGLAM(GenericGLAM):
             i = -1
             while not uuid[i] == '/':
                 i = i-1
-            uuid = uuid[i+1:len(url)]
+            uuid = uuid[i+1:len(uuid)]        
         return uuid
 
     def generate_image_information(self, categories=[]):
@@ -201,7 +202,7 @@ class NationaalArchiefGLAM(GenericGLAM):
     @classmethod
     def search_to_identifiers(cls, searchterm, no_of_files=100):        
         """
-        A classmethod to obtains the identifiers of images from a given search string
+        A classmethod to obtain the identifiers of images from a given search string
         Takes the search string as input
         Returns a list of identifiers of the images found as a search result
         """
