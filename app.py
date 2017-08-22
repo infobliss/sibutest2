@@ -21,11 +21,12 @@ consumer_token = mwoauth.ConsumerToken(app.config['CONSUMER_KEY'], app.config['C
 
 @app.route('/')
 def index():
-    # the list of names of the GLAMs
-    glam_names = utils.get_glam_names(glam_list)
+    glam_names, glam_homes, glam_desc, glam_samples, glam_ids = \
+        utils.get_glam_info(glam_list)
     username = flask.session.get('username', None)
     return flask.render_template(
-        'index.html', username=username, glam_list=glam_names)
+        'index.html', username=username, glam_list=glam_names, glam_desc=glam_desc,
+        glam_homes=glam_homes, glam_samples=glam_samples, glam_ids =glam_ids)
 
 
 @app.route('/login')
@@ -45,7 +46,8 @@ def login():
 
 @app.route('/result', methods=['POST'])
 def receiveData():
-    glam_names = utils.get_glam_names(glam_list)
+    glam_names, glam_homes, glam_desc, glam_samples, glam_ids = \
+        utils.get_glam_info(glam_list)
     print(glam_list)
     print("=======")
     username = flask.session.get('username', None)
@@ -60,11 +62,13 @@ def receiveData():
     searchstring = flask.request.form['searchstring']
     identifier = flask.request.form['unique_id']
     category1 = flask.request.form['categories']
-    categories = [category1]
+    categories = []
+    if category1:
+        categories.append(category1)
     # get other categories if more than one categories are gievn
     f = flask.request.form
     for key in f.keys():
-        if 'category' in key:
+        if 'category' in key and flask.request.form[key]:
             categories.append(flask.request.form[key])
     
     # if searchstring is non-empty
@@ -105,7 +109,9 @@ def receiveData():
             pywikibot.config.usernames['commons'].clear()
             pywikibot._sites.clear()
     else:
-        return flask.render_template('index.html', username=username, glam_list=glam_names)
+        return flask.render_template(
+            'index.html', username=username, glam_list=glam_names, glam_desc=glam_desc,
+            glam_homes=glam_homes, glam_samples=glam_samples, glam_ids =glam_ids)
 
 @app.route('/multiUpload', methods=['POST'])
 def multiUpload():
@@ -138,7 +144,8 @@ def multiUpload():
 @app.route('/oauth-callback')
 def oauth_callback():
     """OAuth handshake callback."""
-    glam_names = utils.get_glam_names(glam_list)
+    glam_names, glam_homes, glam_desc, glam_samples, glam_ids = \
+        utils.get_glam_info(glam_list)
     if 'request_token' not in flask.session:
         flask.flash(u'OAuth callback failed. Are cookies disabled?')
         return flask.redirect(flask.url_for('index'))
@@ -159,8 +166,9 @@ def oauth_callback():
             access_token._fields, access_token))
         flask.session['username'] = identity['username']
         username = flask.session.get('username', None)
-
-    return flask.render_template('index.html', username=username, glam_list=glam_names)
+    return flask.render_template(
+        'index.html', username=username, glam_list=glam_names, glam_desc=glam_desc,
+        glam_homes=glam_homes, glam_samples=glam_samples, glam_ids =glam_ids)
 
 
 @app.route('/help_page')
