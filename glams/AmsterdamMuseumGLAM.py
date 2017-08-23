@@ -21,6 +21,7 @@ class AmsterdamMuseumGLAM(GenericGLAM):
     
     name = 'Amsterdam Museum'
     brief_desc = 'The Amsterdam Museum is a museum about the history of Amsterdam'
+    home_url = 'http://am.adlibhosting.com'
     url_prefix = 'http://hdl.handle.net/11259/collection.'
     sample_url = 'http://hdl.handle.net/11259/collection.5782'
     sample_id = '5782'
@@ -402,6 +403,11 @@ class AmsterdamMuseumGLAM(GenericGLAM):
 
     @classmethod
     def search_to_identifiers(cls, searchterm, no_of_files=100):
+        """
+        A classmethod to obtain the identifiers of images from a given search string
+        Takes the search string as input
+        Returns a list of identifiers of the images found as a search result
+        """ 
         ids = []
         searchstring = 'http://amdata.adlibsoft.com/wwwopac.ashx?database=AMcollect&q={search}&limit={count}&output=json'.format(
                                                                                                 search=searchterm, count=no_of_files)
