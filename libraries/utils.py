@@ -127,6 +127,16 @@ def get_glam_class(glam_list, glam_name):
             return glam
     raise ValueError("GLAM not found")
 
+def get_glam_names(glam_list):
+    '''
+    Function to return the names of the GLAMs supported
+    glam_list is a list of GLAM classes
+    '''
+    glam_names = []
+    for glam in glam_list:
+        glam_names.append(glam.name)
+    return glam_names
+
 def get_glam_info(glam_list):
     '''
     Function to return the names of the GLAMs supported
