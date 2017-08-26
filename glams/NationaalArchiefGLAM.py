@@ -70,8 +70,9 @@ class NationaalArchiefGLAM(GenericGLAM):
         Categories (as specified by uploader can be send) to be added to the article text
         The function returns: image_url, filepage_title and filepage_wikitext
         """
-        for category in categories:
-            self.categories.append(category)
+        if categories is not None:
+            for category in categories:
+                self.categories.append(category)
         if not self.get_infobox_parameters():
             return False
         image_id = self.data['doc']['Bestanddeelnummer'][0]

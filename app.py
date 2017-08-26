@@ -185,4 +185,4 @@ def under_construction():
 def logout():
     """Log the user out by clearing their session."""
     flask.session.clear()
-return flask.redirect(flask.url_for('index'))
+    return flask.redirect(flask.url_for('index'))
