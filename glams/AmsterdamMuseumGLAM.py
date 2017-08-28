@@ -58,8 +58,11 @@ class AmsterdamMuseumGLAM(GenericGLAM):
         The function returns: image_url, filepage_title and filepage_wikitext
         """
 
-        for category in categories:
-            self.categories.append(category)
+        if categories:
+            for category in categories:
+                self.categories.append(category)
+        else:
+            self.categories.append('Images from Amsterdam Museum needing categories')
         if not self.get_infobox_parameters(self.data):
             return False
 

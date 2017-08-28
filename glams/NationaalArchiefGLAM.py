@@ -70,9 +70,11 @@ class NationaalArchiefGLAM(GenericGLAM):
         Categories (as specified by uploader can be send) to be added to the article text
         The function returns: image_url, filepage_title and filepage_wikitext
         """
-        if categories is not None:
+        if categories:
             for category in categories:
                 self.categories.append(category)
+        else:
+            self.categories.append('Images from Nationaal Archief needing categories')
         if not self.get_infobox_parameters():
             return False
         image_id = self.data['doc']['Bestanddeelnummer'][0]
@@ -92,9 +94,11 @@ class NationaalArchiefGLAM(GenericGLAM):
         url = 'http://www.gahetna.nl/beeldbank-api/zoek/{uuid}'.format(uuid=id)
         data = load_from_url(url)
         images = data["doc"]["images"]
-        keys = list(images)
-        # take the first image if more than one images are given by the identifier
-        URLvalues = images[keys[0]]
+        # take the first image only if more than one images are given by the identifier
+        image_key = next(iter(images))
+        print(image_key)
+        URLvalues = images[image_key]
+        
         res_min = 20000
         for image in URLvalues:
             res = re.findall(r'(\d+)x\d+/', image["url"])
