@@ -6,11 +6,13 @@ This tool has been designed to be user friendly so that it minimizes and simplif
 
 #### Quick Stats
 
-- Student : [Siddhartha Sarkar](https://github.com/infobliss)
-- Mentors : [Bas](https://github.com/basvb), [Zhuyifei](https://github.com/zhuyifei1999), [Tom](https://github.com/tom29739)
-- Organisation : [Wikimedia Foundation](https://wikimediafoundation.org)
-- Duration : 04 May'17 to 29 Aug'17
-- Project Description : https://phabricator.wikimedia.org/T138464
-- Project Proposal : https://phabricator.wikimedia.org/T161670
-- Weekly Reports : https://phabricator.wikimedia.org/T164555
-- Weekly Blogs : https://infoblissblog.wordpress.com/tag/gsoc/
+- Project: [Google Summer of Code 2017](https://summerofcode.withgoogle.com/)
+- Student: [Siddhartha Sarkar](https://github.com/infobliss)
+- Mentors: [Bas](https://github.com/basvb), [Zhuyifei](https://github.com/zhuyifei1999), [Tom](https://github.com/tom29739)
+- Organisation: [Wikimedia Foundation](https://wikimediafoundation.org)
+- Project Description: https://phabricator.wikimedia.org/T138464
+- Project Proposal: https://phabricator.wikimedia.org/T161670
+- Project Duration: 04 May'17 to 29 Aug'17
+- Weekly Reports: https://phabricator.wikimedia.org/T164555
+- Final Report: https://infobliss.github.io/gsoc2017/
+- Weekly Blogs: https://infoblissblog.wordpress.com/tag/gsoc/
