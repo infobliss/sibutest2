@@ -1,4 +1,4 @@
-This is the source code of the Wikimedia Foundation Tool Glam2Commons.
+This is the source code of the Wikimedia Foundation tool **Glam2Commons**.
 
 **Glam2Commons** ([link to tool](https://tools.wmflabs.org/glam2commons/)) is a tool which allows any Wikimedia Commons user to 
 import images to Commons from the online repositories of a number of GLAMs (galleries, libraries, archives and museums) easily. 
